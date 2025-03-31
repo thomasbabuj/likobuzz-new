@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import { RightSidebar } from "@/app/components/RightSidebar";
 import { VoteButtons } from "@/app/components/VoteButtons";
+import { Comments } from "@/app/components/Comments";
 
 // Mock data - replace with real data fetching
 const MOCK_POST = {
@@ -251,6 +252,11 @@ export default function PostDetails() {
         <div className="hidden xl:block">
           <RightSidebar />
         </div>
+      </div>
+
+      {/* Post content */}
+      <div className="mt-8">
+        <Comments />
       </div>
     </div>
   );

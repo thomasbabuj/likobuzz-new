@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Context: Likobuzz Project Overview
+
+## 1. Core Purpose & Audience
+*   **Project Name:** Likobuzz
+*   **Goal:** A fun, public discussion, Q&A, and gossip platform primarily targeting the **Filipino community** worldwide. Inspired by Singapore's Stomp website model.
+*   **Primary Users:** General Filipino users for consuming content, asking/answering questions, voting, and commenting. Site administrators for content management and moderation.
+
+## 2. Technology Stack & Architecture
+*   **Framework:** Full-stack application built with **Next.js 15 (App Router)** and **React 19** using **TypeScript**.
+*   **Database:** **PostgreSQL**
+*   **ORM:** **Drizzle ORM** for database interactions.
+*   **Authentication:** **Clerk** manages user authentication and sessions.
+*   **Styling:** **Tailwind CSS** with **Shadcn UI** components.
+*   **Data Fetching:** Primarily **Server Actions** for mutations and server-side data needs. **TanStack Query (React Query)** for client-side caching and data synchronization.
+*   **Forms & Validation:** **React Hook Form** for form structure and state management. **Zod** for schema validation (client & server).
+*   **Deployment:**
+    *   Initial: **Vercel** (Free Tier).
+    *   Planned Future: **AWS ECS Fargate** or **GCP** (using Docker containers).
+
+## 3. Key Features & Modules
+*   **User Authentication & Roles:**
+    *   Managed by Clerk.
+    *   Roles: `Admin`, `Regular User`.
+*   **Admin Functionality:**
+    *   **Dashboard:** Overview and management access.
+    *   **Post Management:** Create, Edit, Delete, Publish/Unpublish posts. Includes a rich text editor with formatting, image, and video upload capabilities.
+    *   **User Request Management:** View suggested topics/posts from users.
+    *   **Comment Moderation:** Monitor and manage comments on posts.
+*   **User Functionality:**
+    *   **Content Consumption:** Browse posts via **infinite scrolling** on the landing page.
+    *   **Interaction:** **Upvote/Downvote** posts, **Comment** on posts (supports threaded conversations).
+    *   **Contribution:** Suggest new topics or posts for admin review.
+
+## 4. Core Business Logic & Concepts
+*   **Permissions:**
+    *   **Login Required:** Users must be authenticated via Clerk to vote or comment.
+    *   **Admin Control:** Only users with the `Admin` role can create, edit, delete, publish, or unpublish posts.
+*   **Content Structure:**
+    *   Posts can belong to multiple **Categories**.
+    *   Posts contain text content (via rich text editor), optional images/videos.
+*   **Navigation:**
+    *   Standard public navigation.
+    *   Specific Admin navigation (Top menu, Side menu) likely within an admin layout.
+
+## 5. Important Libraries & Integrations Summary
+*   **Clerk:** Authentication & User Management.
+*   **Drizzle ORM:** Typed SQL queries and schema management for PostgreSQL.
+*   **Shadcn UI:** Core component library built on Radix UI and styled with Tailwind.
+*   **React Hook Form:** Managing form state and submission logic.
+*   **Zod:** Schema definition and validation.
+*   **TanStack Query:** Client-side server state management.
+*   **(Implicit) Next.js App Router Features:** Server Actions, Route Handlers, Server/Client Components.
+
+## 6. Current Focus
+*   Development of the **Minimum Viable Product (MVP)** encompassing the core features outlined above.
+
+---
+*This context provides background information about the Likobuzz project. Refer to the separate `nextjs-typescript-best-practices.mdc` (or similar) file for coding standards and implementation guidelines.*

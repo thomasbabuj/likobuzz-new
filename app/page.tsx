@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-
 import { ChevronDown } from "lucide-react";
 import { PostFeed } from "./components/PostFeed";
+import { RightSidebar } from "./components/RightSidebar";
 
 export default function Home() {
   return (
-    <div className="py-4 space-y-6">
+    <div className="py-4">
       {/* Mobile Navigation */}
       <div className="flex md:hidden flex-col space-y-4">
         <div className="flex space-x-2">
@@ -40,37 +40,45 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Desktop Filters */}
-      <div className="hidden md:flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-background sticky top-[57px] z-40 py-4 border-b">
-        <div className="flex items-center gap-4 overflow-x-auto pb-2 sm:pb-0">
-          <div className="flex items-center gap-2 min-w-max">
-            <span className="text-sm text-muted-foreground">AUTHOR:</span>
-            <Button variant="outline" size="sm">
-              ALL
-            </Button>
+      {/* Desktop Layout */}
+      <div className="flex flex-col space-y-6">
+        {/* Desktop Filters */}
+        <div className="hidden md:flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-background sticky top-[57px] z-40 py-4 border-b">
+          <div className="flex items-center gap-4 overflow-x-auto pb-2 sm:pb-0">
+            <div className="flex items-center gap-2 min-w-max">
+              <span className="text-sm text-muted-foreground">AUTHOR:</span>
+              <Button variant="outline" size="sm">
+                ALL
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 min-w-max">
+              <span className="text-sm text-muted-foreground">FEED:</span>
+              <Button variant="outline" size="sm">
+                ALL
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 min-w-max">
+              <span className="text-sm text-muted-foreground">SORT:</span>
+              <Button variant="outline" size="sm">
+                NEW
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2 min-w-max">
-            <span className="text-sm text-muted-foreground">FEED:</span>
-            <Button variant="outline" size="sm">
-              ALL
-            </Button>
-          </div>
-          <div className="flex items-center gap-2 min-w-max">
-            <span className="text-sm text-muted-foreground">SORT:</span>
-            <Button variant="outline" size="sm">
-              NEW
-            </Button>
+
+          <div className="flex gap-2">
+            <Button variant="destructive">SUBMIT TIP</Button>
+            <Button variant="destructive">CREATE POST</Button>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="destructive">SUBMIT TIP</Button>
-          <Button variant="destructive">CREATE POST</Button>
+        {/* Main Content */}
+        <div className="flex gap-6">
+          <div className="flex-1">
+            <PostFeed />
+          </div>
+          <RightSidebar />
         </div>
       </div>
-
-      {/* Post Feed */}
-      <PostFeed />
     </div>
   );
 }

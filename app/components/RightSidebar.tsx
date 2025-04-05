@@ -80,7 +80,38 @@ export function RightSidebar() {
   ];
 
   return (
-    <div className="hidden xl:block w-[300px] space-y-6">
+    <div className="hidden lg:block w-[300px] space-y-6">
+      {/* About Section */}
+      <div className="rounded-lg border p-4">
+        <h3 className="font-semibold mb-2">About Likobuzz</h3>
+        <p className="text-sm text-muted-foreground">
+          A fun, public discussion, Q&A, and gossip platform for the Filipino
+          community worldwide.
+        </p>
+      </div>
+
+      {/* Rules Section */}
+      <div className="rounded-lg border p-4">
+        <h3 className="font-semibold mb-2">Community Rules</h3>
+        <ul className="text-sm text-muted-foreground space-y-2">
+          <li>1. Be respectful to others</li>
+          <li>2. No hate speech or bullying</li>
+          <li>3. No spam or self-promotion</li>
+          <li>4. Keep discussions civil</li>
+          <li>5. Follow Filipino community guidelines</li>
+        </ul>
+      </div>
+
+      {/* Stats Section */}
+      <div className="rounded-lg border p-4">
+        <h3 className="font-semibold mb-2">Community Stats</h3>
+        <div className="text-sm text-muted-foreground space-y-1">
+          <p>👥 1.2k Members</p>
+          <p>📝 150 Posts today</p>
+          <p>🎉 Created Jan 2024</p>
+        </div>
+      </div>
+
       {/* Inbox Section */}
       <div className="bg-card border rounded-lg p-4">
         <h2 className="text-lg font-semibold mb-4">LIKOBUZZ IN YOUR INBOX</h2>

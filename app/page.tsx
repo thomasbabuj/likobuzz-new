@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { ChevronDown } from "lucide-react";
 import { PostFeed } from "./components/PostFeed";
 import { RightSidebar } from "./components/RightSidebar";
 
 export default function Home() {
   return (
-    <div className="py-4">
+    <div className="max-w-[1200px] mx-auto px-4">
       {/* Mobile Navigation */}
-      <div className="flex md:hidden flex-col space-y-4">
+      <div className="flex md:hidden flex-col space-y-4 mt-4">
         <div className="flex space-x-2">
           <Button variant="destructive" className="flex-1">
             NEW
@@ -41,23 +41,23 @@ export default function Home() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="flex flex-col space-y-6">
+      <div className="flex flex-col">
         {/* Desktop Filters */}
-        <div className="hidden md:flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-background sticky top-[57px] z-40 py-4 border-b">
-          <div className="flex items-center gap-4 overflow-x-auto pb-2 sm:pb-0">
-            <div className="flex items-center gap-2 min-w-max">
+        <div className="hidden md:flex items-center justify-between bg-background sticky top-[57px] z-40 py-4 border-b">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">AUTHOR:</span>
               <Button variant="outline" size="sm">
                 ALL
               </Button>
             </div>
-            <div className="flex items-center gap-2 min-w-max">
+            <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">FEED:</span>
               <Button variant="outline" size="sm">
                 ALL
               </Button>
             </div>
-            <div className="flex items-center gap-2 min-w-max">
+            <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">SORT:</span>
               <Button variant="outline" size="sm">
                 NEW
@@ -72,11 +72,13 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <div className="flex gap-6">
-          <div className="flex-1">
+        <div className="flex gap-6 mt-6">
+          <div className="flex-1 min-w-0">
             <PostFeed />
           </div>
-          <RightSidebar />
+          <div className="hidden lg:block w-[300px] flex-shrink-0">
+            <RightSidebar />
+          </div>
         </div>
       </div>
     </div>

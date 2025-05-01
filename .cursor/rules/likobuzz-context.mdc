@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # Context: Likobuzz Project Overview
 
@@ -13,7 +13,7 @@ alwaysApply: true
 ## 2. Technology Stack & Architecture
 *   **Framework:** Full-stack application built with **Next.js 15 (App Router)** and **React 19** using **TypeScript**.
 *   **Database:** **PostgreSQL**
-*   **ORM:** **Drizzle ORM** for database interactions.
+*   **ORM:** **Prisma ORM** for database interactions.
 *   **Authentication:** **Clerk** manages user authentication and sessions.
 *   **Styling:** **Tailwind CSS** with **Shadcn UI** components.
 *   **Data Fetching:** Primarily **Server Actions** for mutations and server-side data needs. **TanStack Query (React Query)** for client-side caching and data synchronization.
@@ -49,7 +49,7 @@ alwaysApply: true
 
 ## 5. Important Libraries & Integrations Summary
 *   **Clerk:** Authentication & User Management.
-*   **Drizzle ORM:** Typed SQL queries and schema management for PostgreSQL.
+*   **Prisma ORM:** Typed SQL queries and schema management for PostgreSQL.
 *   **Shadcn UI:** Core component library built on Radix UI and styled with Tailwind.
 *   **React Hook Form:** Managing form state and submission logic.
 *   **Zod:** Schema definition and validation.

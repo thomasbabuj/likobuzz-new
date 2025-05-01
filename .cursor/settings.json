@@ -1,0 +1,27 @@
+{
+  "globalIgnore": [
+    "**/.env*",
+    "**/.git",
+    "**/node_modules",
+    "**/.vscode",
+    "**/*.lock",
+    "**/dist",
+    "**/build",
+    "**/.next",
+    "**/coverage",
+    "**/tmp",
+    "**/temp",
+    "**/logs",
+    "**/*.log",
+    "**/private*",
+    "**/secret*",
+    "**/*credential*",
+    "**/*password*",
+    "**/*key*",
+    "**/*token*",
+    "**/*.pem",
+    "**/*.key",
+    "**/*.crt",
+    "**/*.cer"
+  ]
+}

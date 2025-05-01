@@ -29,7 +29,6 @@ export async function POST(req: Request) {
 
   // Get the body
   const payload = await req.json();
-  console.log("📦 Webhook payload:", JSON.stringify(payload, null, 2));
   const body = JSON.stringify(payload);
 
   // Create a new Svix instance with your webhook secret
@@ -60,18 +59,35 @@ export async function POST(req: Request) {
   console.log("📝 Event type:", eventType);
 
   if (eventType === "user.created") {
-    const { id, email_addresses, first_name, last_name } = evt.data;
+    const {
+      id,
+      email_addresses,
+      first_name,
+      last_name,
+      image_url,
+      last_sign_in_at,
+      created_at,
+      external_accounts,
+    } = evt.data;
 
     const primaryEmail = email_addresses[0]?.email_address;
-    // Generate username from email (remove @ and domain)
+    const emailVerified =
+      email_addresses[0]?.verification?.status === "verified";
     const generatedUsername = primaryEmail ? primaryEmail.split("@")[0] : null;
+
+    // Determine auth method based on external accounts
+    const hasGoogleAccount = external_accounts?.some(
+      (account) => account.provider === "google"
+    );
+    const authMethod = hasGoogleAccount ? "GOOGLE" : "EMAIL";
 
     console.log("👤 User data:", {
       clerkId: id,
-      email: primaryEmail,
       generatedUsername,
       firstName: first_name,
       lastName: last_name,
+      authMethod,
+      emailVerified,
     });
 
     if (!primaryEmail) {
@@ -85,7 +101,15 @@ export async function POST(req: Request) {
         data: {
           clerkId: id,
           email: primaryEmail,
-          username: generatedUsername || `user_${id.split("_")[1]}`, // Fallback username using part of Clerk ID
+          username: generatedUsername || `user_${id.split("_")[1]}`,
+          firstName: first_name || null,
+          lastName: last_name || null,
+          imageUrl: image_url || null,
+          profileImageUrl: image_url || null,
+          emailVerified,
+          lastSignInAt: last_sign_in_at ? new Date(last_sign_in_at) : null,
+          createdAt: new Date(created_at),
+          authMethod,
         },
       });
 

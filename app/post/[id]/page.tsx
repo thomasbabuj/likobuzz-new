@@ -3,7 +3,6 @@ import { RightSidebar } from "@/app/components/RightSidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
-import { VoteButtons } from "@/app/components/VoteButtons";
 
 // Mock data - replace with real data fetching
 const MOCK_POST = {
@@ -50,196 +49,151 @@ export default async function PostPage({ params }: Props) {
   const postId = await params.id;
 
   return (
-    <div className="mx-auto">
-      <div className="flex flex-col xl:flex-row xl:container xl:px-8 xl:py-8 xl:gap-6">
+    <div className="container mx-auto px-4 py-4 lg:py-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Main content area */}
-        <div className="w-full xl:flex-1 xl:max-w-3xl">
-          {/* Post content */}
-          <div className="bg-white xl:rounded-lg xl:border xl:shadow-sm">
-            {/* Mobile Vote Buttons */}
-            <div className="px-4 py-2">
-              <VoteButtons
-                upvotes={MOCK_POST.upvotes}
-                downvotes={MOCK_POST.downvotes}
-              />
-            </div>
-
-            <div className="flex min-w-0">
-              {/* Desktop Vote Column */}
-              <div className="hidden md:flex flex-col items-center py-4 px-3 bg-muted/30">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 p-0 hover:bg-transparent hover:text-red-600"
-                >
-                  <ChevronUp className="h-5 w-5" />
-                </Button>
-                <span className="text-sm font-medium my-1">
+        <div className="flex-1 min-w-0">
+          <article className="bg-white rounded-lg border">
+            <div className="flex">
+              {/* Left vote column */}
+              <div className="flex flex-col items-center py-4 px-4 bg-slate-50 rounded-l-lg border-r">
+                <button className="hover:text-blue-500">
+                  <ChevronUp className="h-6 w-6" />
+                </button>
+                <span className="text-lg font-medium my-1">
                   {MOCK_POST.upvotes}
                 </span>
-                <span className="text-xs text-muted-foreground mb-1">—</span>
-                <span className="text-sm font-medium my-1">
+                <button className="hover:text-red-500">
+                  <ChevronDown className="h-6 w-6" />
+                </button>
+                <span className="text-xs text-muted-foreground mt-1">—</span>
+                <span className="text-lg font-medium my-1">
                   {MOCK_POST.downvotes}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 p-0 hover:bg-transparent hover:text-red-600"
-                >
-                  <ChevronDown className="h-5 w-5" />
-                </Button>
               </div>
 
-              {/* Main Content Column */}
-              <div className="flex-1 min-w-0">
-                {/* Post Header */}
-                <div className="px-4 py-3 border-b space-y-2">
-                  {/* Category */}
-                  <div>
-                    <Badge
-                      variant="secondary"
-                      className="bg-red-600 text-white hover:bg-red-700"
-                    >
-                      {MOCK_POST.category}
-                    </Badge>
-                  </div>
+              {/* Main content */}
+              <div className="flex-1 min-w-0 p-6">
+                {/* Category */}
+                <div className="mb-3">
+                  <Badge
+                    variant="secondary"
+                    className="bg-red-600 text-white hover:bg-red-700"
+                  >
+                    {MOCK_POST.category}
+                  </Badge>
+                </div>
 
-                  {/* Title */}
-                  <h1 className="text-2xl font-bold leading-tight break-words">
-                    {MOCK_POST.title}
-                  </h1>
+                {/* Title */}
+                <h1 className="text-2xl font-bold leading-tight mb-4">
+                  {MOCK_POST.title}
+                </h1>
 
-                  {/* Meta Info */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge
-                      variant="secondary"
-                      className="bg-red-600 text-white hover:bg-red-700"
-                    >
-                      {MOCK_POST.authorBadge}
-                    </Badge>
-                    <span className="text-sm">
-                      Posted by {MOCK_POST.author}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {MOCK_POST.timestamp}
-                    </span>
+                {/* Author info */}
+                <div className="flex items-center gap-3 mb-6">
+                  <Badge
+                    variant="secondary"
+                    className="bg-red-600 text-white hover:bg-red-700"
+                  >
+                    {MOCK_POST.authorBadge}
+                  </Badge>
+                  <div className="text-sm text-muted-foreground">
+                    Posted by{" "}
+                    <span className="text-foreground">{MOCK_POST.author}</span>
+                    <span className="mx-2">•</span>
+                    {MOCK_POST.timestamp}
                   </div>
                 </div>
 
-                {/* Post Content */}
-                <div className="px-4 py-3 space-y-4">
+                {/* Content */}
+                <div className="space-y-4 mb-6">
                   {MOCK_POST.content.map((block, index) => (
-                    <p
-                      key={index}
-                      className="text-base leading-relaxed break-words"
-                    >
+                    <p key={index} className="text-base leading-relaxed">
                       {block.content}
                     </p>
                   ))}
                 </div>
 
                 {/* Tags */}
-                <div className="px-4 py-3 border-t">
-                  <div className="flex flex-wrap gap-2">
-                    {MOCK_POST.tags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="secondary"
-                        className="text-sm bg-muted hover:bg-muted/80"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {MOCK_POST.tags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="bg-slate-100 text-slate-800 hover:bg-slate-200"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
 
-                {/* Mobile Stats Bar */}
-                <div className="flex md:hidden items-center justify-between px-4 py-3 border-t bg-muted/30">
+                {/* Stats */}
+                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    <span>{MOCK_POST.commentCount}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>{MOCK_POST.views.toLocaleString()} views</span>
-                    <span>•</span>
-                    <span>{MOCK_POST.upvotePercentage}% Upvoted</span>
-                  </div>
-                </div>
-
-                {/* Desktop Stats Bar */}
-                <div className="hidden md:flex items-center gap-4 px-4 py-3 border-t bg-muted/30">
-                  <div className="flex items-center gap-1">
-                    <span>{MOCK_POST.upvotePercentage}% Upvoted</span>
-                  </div>
-                  <div className="flex items-center gap-1">
                     <MessageSquare className="h-4 w-4" />
                     <span>{MOCK_POST.commentCount} Comments</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span>{MOCK_POST.views.toLocaleString()} views</span>
-                  </div>
+                  <span>•</span>
+                  <span>{MOCK_POST.views.toLocaleString()} views</span>
+                  <span>•</span>
+                  <span>{MOCK_POST.upvotePercentage}% Upvoted</span>
                 </div>
 
-                {/* Share Buttons */}
-                <div className="px-4 py-3 border-t">
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium">Share this article</h3>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-[#1877f2] text-white hover:bg-[#1877f2]/90"
-                      >
-                        SHARE
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-black text-white hover:bg-black/90"
-                      >
-                        SHARE
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Previous/Next Navigation */}
-                <div className="px-4 py-3 border-t">
-                  <div className="flex justify-between">
-                    <a
-                      href="#"
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900 min-w-0"
+                {/* Share buttons */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Share this article</h3>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="bg-[#1877f2] text-white hover:bg-[#1877f2]/90"
                     >
-                      <span className="shrink-0">← PREV</span>
-                      <span className="text-sm truncate">
-                        Previous article title
-                      </span>
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900 min-w-0"
+                      SHARE
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="bg-black text-white hover:bg-black/90"
                     >
-                      <span className="text-sm truncate">
-                        Next article title
-                      </span>
-                      <span className="shrink-0">NEXT →</span>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Comments section */}
-                <div className="border-t">
-                  <div className="px-4 py-3 min-w-0">
-                    <Comments postId={postId} />
+                      SHARE
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+
+            {/* Navigation */}
+            <div className="border-t">
+              <div className="flex justify-between p-4">
+                <a
+                  href="#"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  <span>← PREV</span>
+                  <span className="text-sm truncate">
+                    Previous article title
+                  </span>
+                </a>
+                <a
+                  href="#"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  <span className="text-sm truncate">Next article title</span>
+                  <span>NEXT →</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Comments */}
+            <div className="border-t">
+              <div className="p-6">
+                <Comments postId={postId} />
+              </div>
+            </div>
+          </article>
         </div>
 
         {/* Right sidebar */}
-        <div className="hidden w-80 xl:block">
+        <div className="w-full lg:w-80">
           <RightSidebar />
         </div>
       </div>

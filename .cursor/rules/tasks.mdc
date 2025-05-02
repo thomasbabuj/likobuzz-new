@@ -25,7 +25,7 @@ alwaysApply: false
 ### 3. Database Schema
 
 - [x] Basic schema structure
-- [x] User model with extended profile fields
+- [x] User model with extended profile fields (added authMethod, emailVerified, firstName, lastName, imageUrl, lastSignInAt, profileImageUrl)
 - [x] Post model
 - [x] Comment model
 - [x] Category model
@@ -34,33 +34,37 @@ alwaysApply: false
 
 - [x] UI component library setup with Shadcn
 - [x] Basic layout structure
+- [x] PostForm (post creation/editing)
+- [x] TipTapEditor (rich text editor)
+- [x] VoteButtons (voting system)
+
+### 5. Core Features
+
+- [x] Post creation interface (admin)
+- [x] Post editing functionality (admin)
+- [x] Rich text editor integration
+- [x] Voting system (upvote/downvote, basic)
+- [x] Comment system with threading (basic)
 
 ## 🚧 Pending Tasks
 
 ### 1. Core Features
 
 - [ ] Post Management System
-
-  - [ ] Post creation interface
-  - [ ] Post editing functionality
   - [ ] Post deletion
   - [ ] Post publishing/unpublishing
-  - [ ] Rich text editor integration
   - [ ] Image/video upload system
   - [ ] Post categorization
   - [ ] Post search functionality
   - [ ] Infinite scrolling implementation
 
 - [ ] Interaction Features
-  - [ ] Voting system (upvote/downvote)
-  - [ ] Comment system with threading
   - [ ] User reactions
   - [ ] Share functionality
 
 ### 2. Admin Features
 
 - [ ] Admin Dashboard
-
   - [ ] Overview statistics
   - [ ] User management
   - [ ] Content moderation tools
@@ -75,7 +79,6 @@ alwaysApply: false
 ### 3. User Features
 
 - [ ] User Profile
-
   - [ ] Profile page
   - [ ] Activity history
   - [ ] Settings management
@@ -89,10 +92,9 @@ alwaysApply: false
 ### 4. Technical Implementation
 
 - [ ] Data Management
-
-  - [ ] Server Actions setup
+  - [ ] Server Actions setup (partial)
   - [ ] React Query integration
-  - [ ] Form validation (React Hook Form + Zod)
+  - [ ] Form validation (React Hook Form + Zod) (partial)
   - [ ] API routes for admin functions
 
 - [ ] Performance & Security
@@ -122,7 +124,6 @@ alwaysApply: false
 ### 7. Documentation
 
 - [ ] Technical Documentation
-
   - [ ] API documentation
   - [ ] Database schema
   - [ ] Architecture overview
@@ -134,11 +135,11 @@ alwaysApply: false
 
 ## 📊 Progress Tracking
 
-- Overall Progress: ~20%
-- Core Features: ~10%
-- Admin Features: ~0%
+- Overall Progress: ~30%
+- Core Features: ~35%
+- Admin Features: ~10%
 - User Features: ~15%
-- Technical Implementation: ~25%
+- Technical Implementation: ~30%
 - Testing: ~0%
 - Deployment: ~0%
 - Documentation: ~5%
@@ -150,12 +151,17 @@ alwaysApply: false
 - Database schema defined
 - UI component library integrated
 - User synchronization with database implemented via Clerk webhooks
+- Post creation and editing (admin) implemented
+- Rich text editor (TipTap) integrated
+- Voting system (basic) implemented
+- Comment threading (basic) implemented
+- User model extended with new fields
 
 ## 📅 Next Steps (Priority)
 
-1. Implement post creation and management system
-2. Set up rich text editor and media upload
-3. Develop voting and comment system
+1. Implement post deletion and publishing/unpublishing
+2. Set up image/video upload for posts
+3. Develop infinite scrolling and post search
 4. Create admin dashboard
 5. Implement user profiles and settings
 

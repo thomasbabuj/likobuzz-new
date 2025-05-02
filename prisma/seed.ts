@@ -224,6 +224,9 @@ const users = [
 ];
 
 async function main() {
+  console.log("Starting seed...");
+  console.log("Seeding categories...");
+
   await db.category.upsert({
     where: { id: "news" },
     update: {},
@@ -247,17 +250,25 @@ async function main() {
   // Only seed posts if none exist
   const postCount = await db.post.count();
   if (postCount === 0) {
+    console.log("Seeding posts...");
+
     for (const post of posts) {
       await db.post.create({ data: post });
     }
+  } else {
+    console.log("Posts already seeded, skipping.");
   }
 
   // Only seed users if none exist
   const userCount = await db.user.count();
   if (userCount === 1) {
+    console.log("Seeding users...");
+
     for (const user of users) {
       await db.user.create({ data: user });
     }
+  } else {
+    console.log("Users already seeded, skipping.");
   }
 
   const postId = "cma6qfku40001vgroobjhv6y3";
@@ -266,6 +277,8 @@ async function main() {
   });
 
   if (postCommentsCount === 0) {
+    console.log(`Seeding comments for post ${postId}...`);
+
     const comment1 = await db.comment.create({
       data: {
         content:
@@ -291,6 +304,48 @@ async function main() {
         parentId: reply1.id,
       },
     });
+  } else {
+    console.log(`Comments for post ${postId} already seeded, skipping.`);
   }
+
+  console.log("Seeding votes...");
+
+  // Fetch all posts and users from DB (to get their real IDs)
+  const allPosts = await db.post.findMany({ select: { id: true } });
+  const allUsers = await db.user.findMany({ select: { id: true } });
+
+  // Fetch all existing votes
+  const existingVotes = await db.vote.findMany({
+    select: { userId: true, postId: true },
+  });
+  const voteSet = new Set(existingVotes.map((v) => `${v.userId}|${v.postId}`));
+
+  let votesCreated = 0;
+  for (let i = 0; i < allPosts.length; i++) {
+    const post = allPosts[i];
+    for (let j = 0; j < allUsers.length; j++) {
+      const user = allUsers[j];
+      const key = `${user.id}|${post.id}`;
+      if (!voteSet.has(key)) {
+        const type = (j + i) % 4 === 0 ? "DOWNVOTE" : "UPVOTE";
+        await db.vote.create({
+          data: {
+            type,
+            userId: user.id,
+            postId: post.id,
+          },
+        });
+        votesCreated++;
+      }
+    }
+  }
+
+  if (votesCreated > 0) {
+    console.log(`Seeded ${votesCreated} votes.`);
+  } else {
+    console.log("Votes already seeded, skipping.");
+  }
+
+  console.log("Seeding complete.");
 }
 main().finally(() => db.$disconnect());

@@ -1,6 +1,6 @@
 // app/admin/posts/page.tsx
 import { db } from "@/lib/db";
-import { PostListTable } from "@/app/components/admin/post-list-table";
+import { PostListTable } from "@/app/components/admin/PostListTable";
 
 const PAGE_SIZE = 10;
 

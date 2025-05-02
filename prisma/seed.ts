@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 const db = new PrismaClient();
 
 // authorId for all posts (replace with a real user id from your User table)
@@ -180,6 +180,49 @@ const posts = [
   },
 ];
 
+const users = [
+  {
+    id: "user1",
+    clerkId: "clerk1",
+    email: "john@demo.com",
+    username: "JohnDoe",
+    firstName: "John",
+    lastName: "Doe",
+    imageUrl: "/avatars/john.png",
+    role: UserRole.USER,
+  },
+  {
+    id: "user2",
+    clerkId: "clerk2",
+    email: "jane@demo.com",
+    username: "JaneSmith",
+    firstName: "Jane",
+    lastName: "Smith",
+    imageUrl: "/avatars/jane.png",
+    role: UserRole.USER,
+  },
+  {
+    id: "user3",
+    clerkId: "clerk3",
+    email: "tech@demo.com",
+    username: "TechGuru",
+    firstName: "Tech",
+    lastName: "Guru",
+    imageUrl: "/avatars/tech.png",
+    role: UserRole.USER,
+  },
+  {
+    id: "user4",
+    clerkId: "clerk4",
+    email: "alice@demo.com",
+    username: "AliceJohnson",
+    firstName: "Alice",
+    lastName: "Johnson",
+    imageUrl: "/avatars/alice.png",
+    role: UserRole.USER,
+  },
+];
+
 async function main() {
   await db.category.upsert({
     where: { id: "news" },
@@ -201,8 +244,53 @@ async function main() {
     create: { id: "lifestyle", name: "Lifestyle", slug: "lifestyle" },
   });
 
-  for (const post of posts) {
-    await db.post.create({ data: post });
+  // Only seed posts if none exist
+  const postCount = await db.post.count();
+  if (postCount === 0) {
+    for (const post of posts) {
+      await db.post.create({ data: post });
+    }
+  }
+
+  // Only seed users if none exist
+  const userCount = await db.user.count();
+  if (userCount === 1) {
+    for (const user of users) {
+      await db.user.create({ data: user });
+    }
+  }
+
+  const postId = "cma6qfku40001vgroobjhv6y3";
+  const postCommentsCount = await db.comment.count({
+    where: { postId },
+  });
+
+  if (postCommentsCount === 0) {
+    const comment1 = await db.comment.create({
+      data: {
+        content:
+          "Nakakatuwa pa rin na may mga honest na jeepney drivers! Sana dumami pa ang katulad niya.",
+        authorId: "user1", // JohnDoe
+        postId,
+      },
+    });
+    const reply1 = await db.comment.create({
+      data: {
+        content: "Agree! Dapat bigyan ng award si kuya. Good vibes sa umaga.",
+        authorId: "user2", // JaneSmith
+        postId,
+        parentId: comment1.id,
+      },
+    });
+    await db.comment.create({
+      data: {
+        content:
+          "Sana may dashcam footage para makita ng lahat yung ginawa niya.",
+        authorId: "user3", // TechGuru
+        postId,
+        parentId: reply1.id,
+      },
+    });
   }
 }
 main().finally(() => db.$disconnect());

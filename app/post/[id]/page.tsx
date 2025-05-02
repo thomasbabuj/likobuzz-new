@@ -1,8 +1,11 @@
+"use client";
 import { Comments } from "@/app/components/Comments";
 import { RightSidebar } from "@/app/components/RightSidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
+import { useParams } from "next/navigation";
+import { usePost } from "@/app/hooks/use-post";
 
 // Mock data - replace with real data fetching
 const MOCK_POST = {
@@ -45,8 +48,13 @@ type Props = {
   };
 };
 
-export default async function PostPage({ params }: Props) {
-  const postId = await params.id;
+export default function PostPage() {
+  const params = useParams();
+  const postId = params?.id as string;
+  const { data: post, isLoading, error } = usePost(postId);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !post) return <div>Post not found</div>;
 
   return (
     <div className="container mx-auto px-4 py-4 lg:py-8">
@@ -60,15 +68,13 @@ export default async function PostPage({ params }: Props) {
                 <button className="hover:text-blue-500">
                   <ChevronUp className="h-6 w-6" />
                 </button>
-                <span className="text-lg font-medium my-1">
-                  {MOCK_POST.upvotes}
-                </span>
+                <span className="text-lg font-medium my-1">{post.upvotes}</span>
                 <button className="hover:text-red-500">
                   <ChevronDown className="h-6 w-6" />
                 </button>
                 <span className="text-xs text-muted-foreground mt-1">—</span>
                 <span className="text-lg font-medium my-1">
-                  {MOCK_POST.downvotes}
+                  {post.downvotes}
                 </span>
               </div>
 
@@ -80,13 +86,13 @@ export default async function PostPage({ params }: Props) {
                     variant="secondary"
                     className="bg-red-600 text-white hover:bg-red-700"
                   >
-                    {MOCK_POST.category}
+                    {post.categories}
                   </Badge>
                 </div>
 
                 {/* Title */}
                 <h1 className="text-2xl font-bold leading-tight mb-4">
-                  {MOCK_POST.title}
+                  {post.title}
                 </h1>
 
                 {/* Author info */}
@@ -99,19 +105,20 @@ export default async function PostPage({ params }: Props) {
                   </Badge>
                   <div className="text-sm text-muted-foreground">
                     Posted by{" "}
-                    <span className="text-foreground">{MOCK_POST.author}</span>
+                    <span className="text-foreground">{post.author}</span>
                     <span className="mx-2">•</span>
-                    {MOCK_POST.timestamp}
+                    {post.createdAt}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="space-y-4 mb-6">
-                  {MOCK_POST.content.map((block, index) => (
+                  {/* {post.content.map((block, index) => (
                     <p key={index} className="text-base leading-relaxed">
                       {block.content}
                     </p>
-                  ))}
+                  ))} */}
+                  {post.content}
                 </div>
 
                 {/* Tags */}
@@ -131,12 +138,12 @@ export default async function PostPage({ params }: Props) {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    <span>{MOCK_POST.commentCount} Comments</span>
+                    <span>{post.commentCount} Comments</span>
                   </div>
                   <span>•</span>
                   <span>{MOCK_POST.views.toLocaleString()} views</span>
                   <span>•</span>
-                  <span>{MOCK_POST.upvotePercentage}% Upvoted</span>
+                  <span>{post.upvotePercentage}% Upvoted</span>
                 </div>
 
                 {/* Share buttons */}

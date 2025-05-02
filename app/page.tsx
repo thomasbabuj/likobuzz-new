@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { ChevronDown } from "lucide-react";
 import { PostFeed } from "./components/PostFeed";
 import { RightSidebar } from "./components/RightSidebar";
-import { ReactQueryProvider } from "@/app/providers/react-query-provider";
+import { Providers } from "./providers/Providers";
 
 export default function Home() {
   return (
@@ -75,9 +75,7 @@ export default function Home() {
         {/* Main Content */}
         <div className="flex gap-6 mt-6">
           <div className="flex-1 min-w-0">
-            <ReactQueryProvider>
-              <PostFeed />
-            </ReactQueryProvider>
+            <PostFeed />
           </div>
           <div className="hidden lg:block w-[300px] flex-shrink-0">
             <RightSidebar />

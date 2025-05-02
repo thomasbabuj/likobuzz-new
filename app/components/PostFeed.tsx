@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
+import { useInfinitePosts } from "@/app/hooks/use-infinite-posts";
+import { useRef, useEffect } from "react";
+
 // Mock data - replace with real data fetching
 const MOCK_POSTS = [
   {
@@ -34,9 +37,39 @@ const MOCK_POSTS = [
 ];
 
 export function PostFeed() {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    error,
+    isFetching,
+  } = useInfinitePosts();
+
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage();
+      },
+      { threshold: 1 }
+    );
+    if (loadMoreRef.current) observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  if (isFetching || isFetchingNextPage) return <div>Loading...</div>;
+  if (status === "error") return <div>Error: {error.message}</div>;
+
+  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+
   return (
     <div className="space-y-4">
-      {MOCK_POSTS.map((post, index) => (
+      {posts.map((post, index) => (
         <article key={post.id} className="bg-white">
           {/* Desktop/Tablet Layout */}
           <div className="hidden sm:flex border rounded-lg">
@@ -57,7 +90,7 @@ export function PostFeed() {
               {/* Category and Title */}
               <div className="space-y-2">
                 <div className="inline-block px-2 py-1 text-xs font-medium text-white bg-red-600 rounded">
-                  {post.category}
+                  {post.categories}
                 </div>
                 <Link href={`/post/${post.id}`}>
                   <h2 className="text-lg font-semibold hover:text-blue-600">
@@ -74,7 +107,7 @@ export function PostFeed() {
                 <span>•</span>
                 <span>{post.views} views</span>
                 <span>•</span>
-                <span>{post.comments} Comment</span>
+                <span>{post.commentCount} Comment</span>
               </div>
             </div>
 
@@ -140,6 +173,13 @@ export function PostFeed() {
           </div>
         </article>
       ))}
+      <div ref={loadMoreRef} />
+      {isFetchingNextPage && <div>Loading more...</div>}
+      {!hasNextPage && (
+        <div className="text-center text-muted-foreground py-4">
+          No more posts
+        </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@ interface PostListTableProps {
     createdAt: Date;
     author: { username: string; id: string } | null;
     categories: { name: string; id: string }[];
+    commentsCount: number;
   }[];
   total: number;
   page: number;
@@ -41,6 +42,7 @@ export function PostListTable({
             <TableHead>Author</TableHead>
             <TableHead>Categories</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Comments</TableHead>
             <TableHead>Created</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -60,6 +62,7 @@ export function PostListTable({
                   <span className="text-gray-500">Draft</span>
                 )}
               </TableCell>
+              <TableCell>{post.commentsCount}</TableCell>
               <TableCell>{post.createdAt.toLocaleDateString()}</TableCell>
               <TableCell>
                 <Link

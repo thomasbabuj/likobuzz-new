@@ -10,17 +10,24 @@ generator client {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  clerkId       String    @unique
-  email         String    @unique
-  username      String    @unique
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  posts         Post[]
-  comments      Comment[]
-  votes         Vote[]
-  suggestedPosts SuggestedPost[]
+  id                String    @id @default(cuid())
+  clerkId           String    @unique
+  email             String    @unique
+  username          String    @unique
+  firstName         String?
+  lastName          String?
+  imageUrl          String?
+  profileImageUrl   String?   // Gravatar or uploaded image
+  emailVerified     Boolean   @default(false)
+  lastSignInAt      DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  role              UserRole  @default(USER)
+  authMethod        AuthMethod @default(EMAIL)
+  posts             Post[]
+  comments          Comment[]
+  votes             Vote[]
+  suggestedPosts    SuggestedPost[]
 }
 
 model Post {
@@ -123,4 +130,9 @@ enum SuggestionStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum AuthMethod {
+  EMAIL
+  GOOGLE
 } 

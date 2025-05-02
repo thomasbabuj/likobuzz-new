@@ -20,11 +20,12 @@ alwaysApply: false
 - [x] Sign-in page
 - [x] Sign-up page
 - [x] Clerk middleware for auth protection
+- [x] Webhook handler for user creation and DB sync
 
 ### 3. Database Schema
 
 - [x] Basic schema structure
-- [x] User model
+- [x] User model with extended profile fields
 - [x] Post model
 - [x] Comment model
 - [x] Category model
@@ -133,11 +134,11 @@ alwaysApply: false
 
 ## 📊 Progress Tracking
 
-- Overall Progress: ~15%
+- Overall Progress: ~20%
 - Core Features: ~10%
 - Admin Features: ~0%
-- User Features: ~5%
-- Technical Implementation: ~20%
+- User Features: ~15%
+- Technical Implementation: ~25%
 - Testing: ~0%
 - Deployment: ~0%
 - Documentation: ~5%
@@ -148,6 +149,7 @@ alwaysApply: false
 - Basic authentication implemented
 - Database schema defined
 - UI component library integrated
+- User synchronization with database implemented via Clerk webhooks
 
 ## 📅 Next Steps (Priority)
 

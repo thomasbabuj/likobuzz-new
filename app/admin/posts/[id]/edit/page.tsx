@@ -1,26 +1,32 @@
 // app/admin/posts/[id]/edit/page.tsx
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
-import { PostForm } from "@/components/admin/post-form";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { PostForm } from "@/app/components/forms/PostForm";
 
-interface EditPostPageProps {
+export default async function EditPostPage({
+  params,
+}: {
   params: { id: string };
-}
+}) {
+  const { sessionClaims, userId } = await auth();
+  if (sessionClaims?.role !== "admin") redirect("/");
 
-export default async function EditPostPage({ params }: EditPostPageProps) {
-  const post = await prisma.post.findUnique({
+  const post = await db.post.findUnique({
     where: { id: params.id },
     include: { categories: true },
   });
+  if (!post) redirect("/admin/posts");
 
-  if (!post) return notFound();
-
-  const categories = await prisma.category.findMany();
+  // Fetch all categories for the select
+  const allCategories = await db.category.findMany();
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Post</h1>
-      <PostForm mode="edit" post={post} categories={categories} />
+    <div className="container py-10">
+      <div className="flex flex-col gap-4 max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold">Edit Post</h1>
+        <PostForm post={post} allCategories={allCategories} mode="edit" />
+      </div>
     </div>
   );
 }

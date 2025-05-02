@@ -38,3 +38,31 @@ export async function createPost(input: PostCreateInput) {
   revalidatePath("/admin/posts");
   return post;
 }
+
+export async function updatePost(id: string, input: PostCreateInput) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({ where: { clerkId: userId } });
+  if (!user) throw new Error("User not found in DB");
+
+  // Validate input
+  const validatedData = postCreateSchema.parse(input);
+
+  // Update post
+  const post = await db.post.update({
+    where: { id },
+    data: {
+      title: validatedData.title,
+      content: validatedData.content,
+      published: validatedData.published,
+      categories: {
+        set: validatedData.categories.map((id) => ({ id })),
+      },
+      slug: slugify(validatedData.title),
+    },
+  });
+
+  revalidatePath("/admin/posts");
+  return post;
+}

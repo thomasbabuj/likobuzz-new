@@ -62,6 +62,7 @@ export function VoteButtons({
               "h-14 flex items-center gap-2 hover:bg-transparent rounded-none",
               userVote === "UPVOTE" ? "text-blue-600" : "hover:text-blue-600"
             )}
+            aria-label="Upvote"
           >
             <ChevronUp className={iconSizes[size]} />
             <span className={cn("font-medium", textSizes[size])}>
@@ -83,6 +84,7 @@ export function VoteButtons({
               "h-14 flex items-center gap-2 hover:bg-transparent rounded-none",
               userVote === "DOWNVOTE" ? "text-red-600" : "hover:text-red-600"
             )}
+            aria-label="Downvote"
           >
             <span className={cn("font-medium", textSizes[size])}>
               {downvotes}
@@ -107,6 +109,8 @@ export function VoteButtons({
           "hover:text-blue-600",
           userVote === "UPVOTE" && "text-blue-600"
         )}
+        aria-label="Upvote"
+        aria-pressed={userVote === "UPVOTE"}
       >
         <ChevronUp className={iconSizes[size]} />
       </Button>
@@ -121,6 +125,8 @@ export function VoteButtons({
           "hover:text-red-600",
           userVote === "DOWNVOTE" && "text-red-600"
         )}
+        aria-label="Downvote"
+        aria-pressed={userVote === "DOWNVOTE"}
       >
         <ChevronDown className={iconSizes[size]} />
       </Button>

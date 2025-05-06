@@ -47,34 +47,49 @@ export function useVote({
     try {
       setIsVoting(true);
 
-      // Optimistically update UI
-      const isAdd = userVote !== voteType;
+      // Determine the vote action based on current state and clicked vote type
       const isRemove = userVote === voteType;
-      const isSwitch = userVote && userVote !== voteType;
+      const isAdd = userVote === null;
+      const isSwitch = userVote !== null && userVote !== voteType;
 
-      // Handle optimistic updates
-      if (voteType === "UPVOTE") {
-        if (isAdd) setUpvotes((prev) => prev + 1);
-        if (isRemove) setUpvotes((prev) => prev - 1);
-        if (isSwitch) {
-          setUpvotes((prev) => prev + 1);
-          setDownvotes((prev) => prev - 1);
-        }
-      } else {
-        if (isAdd) setDownvotes((prev) => prev + 1);
-        if (isRemove) setDownvotes((prev) => prev - 1);
-        if (isSwitch) {
-          setDownvotes((prev) => prev + 1);
-          setUpvotes((prev) => prev - 1);
-        }
-      }
+      // Create a copy of current vote counts to modify
+      let newUpvotes = upvotes;
+      let newDownvotes = downvotes;
+      let newUserVote: "UPVOTE" | "DOWNVOTE" | null = userVote;
 
-      // Update userVote state
+      // Apply optimistic updates based on action type
       if (isRemove) {
-        setUserVote(null);
-      } else {
-        setUserVote(voteType);
+        // Removing a vote
+        if (voteType === "UPVOTE") {
+          newUpvotes--;
+        } else {
+          newDownvotes--;
+        }
+        newUserVote = null;
+      } else if (isAdd) {
+        // Adding a new vote
+        if (voteType === "UPVOTE") {
+          newUpvotes++;
+        } else {
+          newDownvotes++;
+        }
+        newUserVote = voteType;
+      } else if (isSwitch) {
+        // Switching vote type
+        if (voteType === "UPVOTE") {
+          newUpvotes++;
+          newDownvotes--;
+        } else {
+          newDownvotes++;
+          newUpvotes--;
+        }
+        newUserVote = voteType;
       }
+
+      // Update state with new values
+      setUpvotes(newUpvotes);
+      setDownvotes(newDownvotes);
+      setUserVote(newUserVote);
 
       // Submit vote to server
       const result = await votePost({

@@ -9,11 +9,6 @@ const navItems = [
   { label: "NEW", href: "/new" },
   { label: "BEST", href: "/best" },
   { label: "HOT", href: "/hot" },
-  { label: "FORUMS", href: "/forums" },
-  { label: "LEXICON", href: "/lexicon" },
-  { label: "GALLERY", href: "/gallery" },
-  { label: "CALENDAR", href: "/calendar" },
-  { label: "THE SHOP", href: "/shop" },
 ];
 
 export function MainNav() {

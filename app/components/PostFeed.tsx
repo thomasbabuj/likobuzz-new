@@ -52,21 +52,49 @@ export function PostFeed() {
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
+    if (!loadMoreRef.current || !hasNextPage) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) fetchNextPage();
+        // When the sentinel comes into view, fetch the next page
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
       },
-      { threshold: 1 }
+      { threshold: 0.1, rootMargin: "100px" } // Increased rootMargin to load earlier
     );
-    if (loadMoreRef.current) observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (isFetching || isFetchingNextPage) return <div>Loading...</div>;
-  if (status === "error") return <div>Error: {error.message}</div>;
+    observer.observe(loadMoreRef.current);
 
+    return () => {
+      observer.disconnect();
+    };
+  }, [loadMoreRef, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Handle loading and error states
+  if (status === "pending" && !data) {
+    return (
+      <div className="flex justify-center py-10">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="text-center py-10 text-red-500">
+        Error loading posts: {error.message}
+      </div>
+    );
+  }
+
+  // Flatten all pages of posts into a single array
   const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+
+  // If we have no posts, show a message
+  if (posts.length === 0) {
+    return <div className="text-center py-10">No posts found</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -103,11 +131,18 @@ export function PostFeed() {
               <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                 <span>Posted by {post.author}</span>
                 <span>•</span>
-                <span>{post.timeAgo}</span>
+                <span>{post.timeAgo || ""}</span>
+                {post.views && (
+                  <>
+                    <span>•</span>
+                    <span>{post.views} views</span>
+                  </>
+                )}
                 <span>•</span>
-                <span>{post.views} views</span>
-                <span>•</span>
-                <span>{post.commentCount} Comment</span>
+                <span>
+                  {post.commentCount}{" "}
+                  {post.commentCount === 1 ? "Comment" : "Comments"}
+                </span>
               </div>
             </div>
 
@@ -145,7 +180,7 @@ export function PostFeed() {
               {/* Content */}
               <div className="flex-1 p-2">
                 <div className="inline-block px-2 py-0.5 text-xs font-medium text-white bg-red-600 rounded mb-1">
-                  {post.category}
+                  {post.categories || post.category}
                 </div>
                 <Link href={`/post/${post.id}`}>
                   <h2 className="text-base font-semibold hover:text-blue-600">
@@ -155,11 +190,18 @@ export function PostFeed() {
                 <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                   <span>{post.author}</span>
                   <span>•</span>
-                  <span>{post.timeAgo}</span>
+                  <span>{post.timeAgo || ""}</span>
+                  {post.views && (
+                    <>
+                      <span>•</span>
+                      <span>{post.views} views</span>
+                    </>
+                  )}
                   <span>•</span>
-                  <span>{post.views} views</span>
-                  <span>•</span>
-                  <span>{post.comments} Comment</span>
+                  <span>
+                    {post.commentCount || post.comments || 0}{" "}
+                    {post.commentCount === 1 ? "Comment" : "Comments"}
+                  </span>
                 </div>
               </div>
 
@@ -173,9 +215,19 @@ export function PostFeed() {
           </div>
         </article>
       ))}
-      <div ref={loadMoreRef} />
-      {isFetchingNextPage && <div>Loading more...</div>}
-      {!hasNextPage && (
+
+      {/* Sentinel element for intersection observer */}
+      <div ref={loadMoreRef} className="h-10 mt-4" />
+
+      {/* Loading indicator for next page */}
+      {isFetchingNextPage && (
+        <div className="flex justify-center py-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+        </div>
+      )}
+
+      {/* Message when there are no more posts */}
+      {!hasNextPage && posts.length > 0 && (
         <div className="text-center text-muted-foreground py-4">
           No more posts
         </div>

@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 
 import { useInfinitePosts } from "@/app/hooks/use-infinite-posts";
 import { useRef, useEffect } from "react";
+import { VoteButtons } from "./VoteButtons";
 
 // Mock data - replace with real data fetching
 const MOCK_POSTS = [
@@ -75,14 +76,13 @@ export function PostFeed() {
           <div className="hidden sm:flex border rounded-lg">
             {/* Vote Column */}
             <div className="flex flex-col items-center py-2 px-3 bg-slate-50 rounded-l-lg border-r">
-              <button className="hover:text-blue-500">
-                <ChevronUp className="h-5 w-5" />
-              </button>
-              <span className="text-sm font-medium my-1">{post.upvotes}</span>
-              <button className="hover:text-red-500">
-                <ChevronDown className="h-5 w-5" />
-              </button>
-              <span className="text-xs text-muted-foreground mt-1">VOTE</span>
+              <VoteButtons
+                postId={post.id}
+                initialUpvotes={post.upvotes}
+                initialDownvotes={post.downvotes}
+                initialUserVote={post.userVote}
+                size="sm"
+              />
             </div>
 
             {/* Content */}
@@ -133,13 +133,13 @@ export function PostFeed() {
             <div className="flex">
               {/* Left Vote Column */}
               <div className="flex flex-col items-center py-2 px-2 bg-slate-50">
-                <button className="hover:text-blue-500">
-                  <ChevronUp className="h-4 w-4" />
-                </button>
-                <span className="text-xs font-medium my-1">{post.upvotes}</span>
-                <button className="hover:text-red-500">
-                  <ChevronDown className="h-4 w-4" />
-                </button>
+                <VoteButtons
+                  postId={post.id}
+                  initialUpvotes={post.upvotes}
+                  initialDownvotes={post.downvotes}
+                  initialUserVote={post.userVote}
+                  size="sm"
+                />
               </div>
 
               {/* Content */}

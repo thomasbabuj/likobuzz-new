@@ -1,6 +1,7 @@
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 
 const DEFAULT_LIMIT = 10;
 
@@ -8,6 +9,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const cursor = searchParams.get("cursor");
   const limit = parseInt(searchParams.get("limit") || `${DEFAULT_LIMIT}`, 10);
+
+  // Get authenticated user if available
+  const { userId } = await auth();
+
+  // Track the DB user's ID if authenticated
+  let dbUserId: string | null = null;
+  if (userId) {
+    const user = await db.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true },
+    });
+    if (user) {
+      dbUserId = user.id;
+    }
+  }
 
   const posts = await db.post.findMany({
     take: limit + 1,
@@ -26,6 +42,16 @@ export async function GET(req: NextRequest) {
     const downVotes = post.votes.filter((v) => v.type === "DOWNVOTE").length;
     const commentCount = post.comments.length;
     const categories = post.categories.map((c) => c.name).join(", ");
+
+    // Get user's vote for this post if authenticated
+    let userVote = null;
+    if (dbUserId) {
+      const vote = post.votes.find((v) => v.userId === dbUserId);
+      if (vote) {
+        userVote = vote.type;
+      }
+    }
+
     return {
       id: post.id,
       title: post.title,
@@ -34,6 +60,7 @@ export async function GET(req: NextRequest) {
       downvotes: downVotes,
       commentCount,
       categories,
+      userVote,
     };
   });
 

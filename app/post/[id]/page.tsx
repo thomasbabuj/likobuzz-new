@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import { useParams } from "next/navigation";
 import { usePost } from "@/app/hooks/use-post";
+import { VoteButtons } from "@/app/components/VoteButtons";
 
 // Mock data - replace with real data fetching
 const MOCK_POST = {
@@ -65,17 +66,13 @@ export default function PostPage() {
             <div className="flex">
               {/* Left vote column */}
               <div className="flex flex-col items-center py-4 px-4 bg-slate-50 rounded-l-lg border-r">
-                <button className="hover:text-blue-500">
-                  <ChevronUp className="h-6 w-6" />
-                </button>
-                <span className="text-lg font-medium my-1">{post.upvotes}</span>
-                <button className="hover:text-red-500">
-                  <ChevronDown className="h-6 w-6" />
-                </button>
-                <span className="text-xs text-muted-foreground mt-1">—</span>
-                <span className="text-lg font-medium my-1">
-                  {post.downvotes}
-                </span>
+                <VoteButtons
+                  postId={post.id}
+                  initialUpvotes={post.upvotes}
+                  initialDownvotes={post.downvotes}
+                  initialUserVote={post.userVote}
+                  size="lg"
+                />
               </div>
 
               {/* Main content */}
@@ -166,6 +163,19 @@ export default function PostPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Mobile Vote Buttons - below content on small screens */}
+            <div className="md:hidden">
+              <VoteButtons
+                postId={post.id}
+                initialUpvotes={post.upvotes}
+                initialDownvotes={post.downvotes}
+                initialUserVote={post.userVote}
+                orientation="horizontal"
+                size="lg"
+                className="border-t"
+              />
             </div>
 
             {/* Navigation */}

@@ -2,7 +2,13 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ThumbsDown, ThumbsUp, Reply, MessageCircle } from "lucide-react";
+import {
+  ThumbsDown,
+  ThumbsUp,
+  Reply,
+  MessageCircle,
+  ChevronDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -212,6 +218,13 @@ export function Comments({
   const { isSignedIn } = useAuth();
   const { user } = useUser();
 
+  // New state for comment pagination
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalComments, setTotalComments] = useState(0);
+  const COMMENTS_PER_PAGE = 5;
+  const [loadingMore, setLoadingMore] = useState(false);
+
   useEffect(() => {
     async function fetchComments() {
       if (!postId) return;
@@ -219,18 +232,53 @@ export function Comments({
       setIsLoading(true);
       try {
         const fetchedComments = await getPostComments(postId, sortBy);
-        setComments(fetchedComments);
+
+        // Display only the first batch of comments
+        setComments(fetchedComments.slice(0, COMMENTS_PER_PAGE));
+        setTotalComments(fetchedComments.length);
+        setHasMore(fetchedComments.length > COMMENTS_PER_PAGE);
       } catch (error) {
         console.error("Failed to fetch comments:", error);
         // Fallback to empty array
         setComments([]);
+        setHasMore(false);
+        setTotalComments(0);
       } finally {
         setIsLoading(false);
       }
     }
 
+    // Reset pagination when sorting changes
+    setPage(1);
     fetchComments();
   }, [postId, sortBy]);
+
+  const loadMoreComments = async () => {
+    if (!postId || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const startIndex = COMMENTS_PER_PAGE * (nextPage - 1);
+      const endIndex = startIndex + COMMENTS_PER_PAGE;
+
+      // Fetch all comments again (in a real implementation, this would be paginated from the server)
+      const allComments = await getPostComments(postId, sortBy);
+
+      // Add next page of comments to the existing ones
+      const nextPageComments = allComments.slice(startIndex, endIndex);
+      setComments((prev) => [...prev, ...nextPageComments]);
+
+      // Update pagination state
+      setPage(nextPage);
+      setHasMore(endIndex < allComments.length);
+    } catch (error) {
+      console.error("Failed to load more comments:", error);
+      toast.error("Failed to load more comments");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handlePostComment = async () => {
     if (!commentText.trim() || !postId) return;
@@ -295,6 +343,8 @@ export function Comments({
       } else {
         // It's a top-level comment - Add to the beginning for "newest" order
         setComments((prev) => [optimisticComment, ...prev]);
+        // Increment total comments count
+        setTotalComments((prev) => prev + 1);
       }
 
       // Clear form
@@ -311,7 +361,9 @@ export function Comments({
       if (result.success) {
         // Refresh comments to get the real data
         const updatedComments = await getPostComments(postId, sortBy);
-        setComments(updatedComments);
+        setComments(updatedComments.slice(0, COMMENTS_PER_PAGE * page));
+        setTotalComments(updatedComments.length);
+        setHasMore(updatedComments.length > COMMENTS_PER_PAGE * page);
         toast.success("Comment posted successfully");
       } else {
         toast.error(result.error || "Failed to post comment");
@@ -336,6 +388,7 @@ export function Comments({
           setComments((prev) =>
             prev.filter((c) => c.id !== optimisticComment.id)
           );
+          setTotalComments((prev) => prev - 1);
         }
       }
     } catch (error) {
@@ -357,7 +410,12 @@ export function Comments({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Comments</h2>
+        <h2 className="text-xl font-semibold">
+          Comments{" "}
+          {totalComments > 0 && (
+            <span className="text-sm text-gray-500">({totalComments})</span>
+          )}
+        </h2>
         <select
           className="rounded-md border px-3 py-1"
           value={sortBy}
@@ -424,16 +482,54 @@ export function Comments({
           <p>Loading comments...</p>
         </div>
       ) : comments.length > 0 ? (
-        <div className="space-y-6">
-          {comments.map((comment) => (
-            <CommentCard
-              key={comment.id}
-              comment={comment}
-              showFullThread={showFullThread}
-              postId={postId}
-              onReplyClick={handleReplyClick}
-            />
-          ))}
+        <div>
+          <div className="space-y-6">
+            {comments.map((comment) => (
+              <CommentCard
+                key={comment.id}
+                comment={comment}
+                showFullThread={showFullThread}
+                postId={postId}
+                onReplyClick={handleReplyClick}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {hasMore && (
+            <div className="mt-6 flex justify-center">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full max-w-md flex items-center justify-center gap-2"
+                onClick={loadMoreComments}
+                disabled={loadingMore}
+              >
+                {loadingMore ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Show More Comments
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* View All Comments on separate page */}
+          {totalComments > COMMENTS_PER_PAGE && !showFullThread && (
+            <div className="mt-4 text-center">
+              <Button variant="link" asChild>
+                <Link href={`/post/${postId}/comments`}>
+                  View All {totalComments} Comments in Full Page
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="py-8 text-center text-gray-500">

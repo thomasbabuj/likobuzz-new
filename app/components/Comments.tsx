@@ -49,33 +49,75 @@ function CommentCard({
   const [isLoading, setIsLoading] = useState(false);
   const { isSignedIn } = useAuth();
 
+  // New state for expanded view and pagination
+  const [showAllReplies, setShowAllReplies] = useState(false);
+  const [replyPage, setReplyPage] = useState(1);
+  const REPLIES_PER_PAGE = 3;
+
+  // Calculate how many replies to show based on current page
+  const visibleRepliesCount = showAllReplies
+    ? comment.replies?.length || 0
+    : Math.min(REPLIES_PER_PAGE * replyPage, comment.replies?.length || 0);
+
+  // Determine if there are more replies to load (either locally or from server)
+  const hasMoreLoadedReplies =
+    comment.replies && visibleRepliesCount < comment.replies.length;
+  const hasMoreServerReplies =
+    comment.totalReplies > (comment.replies?.length || 0);
+  const hasMoreReplies = hasMoreLoadedReplies || hasMoreServerReplies;
+
+  // Debug logging to help find issues
+  useEffect(() => {
+    if (
+      comment.totalReplies > 0 &&
+      (!comment.replies || comment.replies.length === 0)
+    ) {
+      console.log(
+        "Comment with replies but none loaded:",
+        comment.id,
+        comment.content.substring(0, 20),
+        comment.totalReplies
+      );
+    }
+  }, [comment]);
+
   const handleLoadMore = async () => {
     if (!postId || !comment.id) return;
 
+    // If we already have enough replies loaded, just show more from what we have
+    if (comment.replies && comment.replies.length > visibleRepliesCount) {
+      setReplyPage((prev) => prev + 1);
+      return;
+    }
+
+    // Otherwise, fetch more from the server
     setIsLoading(true);
     try {
       const newReplies = await loadMoreReplies(
         comment.id,
-        loadedReplies,
+        comment.replies?.length || 0, // Use actual loaded replies count
         COMMENT_CONSTANTS.LOAD_MORE_INCREMENT
       );
 
-      if (newReplies.length > 0 && comment.replies) {
-        comment.replies = [...comment.replies, ...newReplies];
+      if (newReplies.length > 0) {
+        // Ensure replies array exists before adding to it
+        const updatedReplies = [...(comment.replies || []), ...newReplies];
+        comment.replies = updatedReplies;
+        // Automatically increment the page to show the newly loaded replies
+        setReplyPage((prev) => prev + 1);
+        // Update the loaded replies count
+        setLoadedReplies(updatedReplies.length);
       }
-
-      setLoadedReplies((prev) =>
-        Math.min(
-          prev + COMMENT_CONSTANTS.LOAD_MORE_INCREMENT,
-          comment.totalReplies
-        )
-      );
     } catch (error) {
       console.error("Failed to load more replies:", error);
       toast.error("Failed to load more replies");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleShowAllReplies = () => {
+    setShowAllReplies((prev) => !prev);
   };
 
   const handleVote = async (type: "UPVOTE" | "DOWNVOTE") => {
@@ -160,37 +202,73 @@ function CommentCard({
           )}
         </div>
 
-        {/* Show replies */}
-        {comment.replies && comment.replies.length > 0 && (
+        {/* Show replies with pagination */}
+        {(comment.replies?.length > 0 || comment.totalReplies > 0) && (
           <div className="mt-4 space-y-4">
-            {comment.replies.slice(0, loadedReplies).map((reply) => (
-              <CommentCard
-                key={reply.id}
-                comment={reply}
-                isReply={true}
-                showFullThread={showFullThread}
-                postId={postId}
-                nestingLevel={nestingLevel + 1}
-                onReplyClick={onReplyClick}
-              />
-            ))}
+            {/* Show replies based on current page */}
+            {comment.replies &&
+              comment.replies
+                .slice(0, visibleRepliesCount)
+                .map((reply) => (
+                  <CommentCard
+                    key={reply.id}
+                    comment={reply}
+                    isReply={true}
+                    showFullThread={showFullThread}
+                    postId={postId}
+                    nestingLevel={nestingLevel + 1}
+                    onReplyClick={onReplyClick}
+                  />
+                ))}
 
-            {/* Show load more button if there are more replies */}
-            {comment.totalReplies > loadedReplies && !showFullThread && (
-              <div className="mt-4 flex items-center gap-4">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/post/${postId}/comments/${comment.id}`}>
-                    View all {comment.totalReplies} replies
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLoadMore}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Loading..." : "Load more replies"}
-                </Button>
+            {/* Pagination controls for replies */}
+            {comment.totalReplies > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {/* Load more button - show when there are more replies to load */}
+                {hasMoreReplies && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLoadMore}
+                    disabled={isLoading}
+                    className="text-xs"
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-t-transparent"></span>
+                        Loading...
+                      </>
+                    ) : (
+                      `Show ${Math.min(REPLIES_PER_PAGE, comment.totalReplies - (comment.replies?.length || 0))} more replies`
+                    )}
+                  </Button>
+                )}
+
+                {/* Expand/Collapse button when there are many replies loaded */}
+                {comment.replies?.length > REPLIES_PER_PAGE && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleShowAllReplies}
+                    className="text-xs"
+                  >
+                    {showAllReplies ? "Collapse replies" : "Expand all replies"}
+                  </Button>
+                )}
+
+                {/* View in full page link */}
+                {!showFullThread && comment.totalReplies > REPLIES_PER_PAGE && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="text-xs"
+                  >
+                    <Link href={`/post/${postId}/comments/${comment.id}`}>
+                      View thread in full page
+                    </Link>
+                  </Button>
+                )}
               </div>
             )}
           </div>

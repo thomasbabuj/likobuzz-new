@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import Loading from "@/app/loading";
 
 export function PostsList() {
   // This will use the data that was prefetched on the server
@@ -22,7 +23,7 @@ export function PostsList() {
     // unless the cache was invalidated
   });
 
-  if (isLoading) return <div>Loading posts...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error loading posts: {(error as Error).message}</div>;
   if (!posts || posts.length === 0) return <div>No posts found</div>;
 

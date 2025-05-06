@@ -7,6 +7,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { useInfinitePosts } from "@/app/hooks/use-infinite-posts";
 import { useRef, useEffect } from "react";
 import { VoteButtons } from "./VoteButtons";
+import Loading from "@/app/loading";
 
 // Mock data - replace with real data fetching
 const MOCK_POSTS = [
@@ -73,11 +74,7 @@ export function PostFeed() {
 
   // Handle loading and error states
   if (status === "pending" && !data) {
-    return (
-      <div className="flex justify-center py-10">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (status === "error") {
@@ -220,11 +217,7 @@ export function PostFeed() {
       <div ref={loadMoreRef} className="h-10 mt-4" />
 
       {/* Loading indicator for next page */}
-      {isFetchingNextPage && (
-        <div className="flex justify-center py-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-        </div>
-      )}
+      {isFetchingNextPage && <Loading />}
 
       {/* Message when there are no more posts */}
       {!hasNextPage && posts.length > 0 && (

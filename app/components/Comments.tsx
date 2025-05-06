@@ -27,6 +27,7 @@ import {
 } from "@/app/actions/comment";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
+import Loading from "@/app/loading";
 
 function CommentCard({
   comment,
@@ -203,7 +204,8 @@ function CommentCard({
         </div>
 
         {/* Show replies with pagination */}
-        {(comment.replies?.length > 0 || comment.totalReplies > 0) && (
+        {((comment.replies && comment.replies.length > 0) ||
+          comment.totalReplies > 0) && (
           <div className="mt-4 space-y-4">
             {/* Show replies based on current page */}
             {comment.replies &&
@@ -235,7 +237,7 @@ function CommentCard({
                   >
                     {isLoading ? (
                       <>
-                        <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-t-transparent"></span>
+                        <span className="mr-1 inline-block h-3 w-3 animate-spin rounded-full border-2 border-slate-200 border-t-black"></span>
                         Loading...
                       </>
                     ) : (
@@ -245,16 +247,19 @@ function CommentCard({
                 )}
 
                 {/* Expand/Collapse button when there are many replies loaded */}
-                {comment.replies?.length > REPLIES_PER_PAGE && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleShowAllReplies}
-                    className="text-xs"
-                  >
-                    {showAllReplies ? "Collapse replies" : "Expand all replies"}
-                  </Button>
-                )}
+                {comment.replies &&
+                  comment.replies.length > REPLIES_PER_PAGE && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleShowAllReplies}
+                      className="text-xs"
+                    >
+                      {showAllReplies
+                        ? "Collapse replies"
+                        : "Expand all replies"}
+                    </Button>
+                  )}
 
                 {/* View in full page link */}
                 {!showFullThread && comment.totalReplies > REPLIES_PER_PAGE && (
@@ -542,7 +547,7 @@ export function Comments({
           >
             {isSubmitting ? (
               <>
-                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
+                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-4 border-slate-200 border-t-black"></span>
                 {replyToId ? "Posting Reply..." : "Posting Comment..."}
               </>
             ) : replyToId ? (
@@ -555,10 +560,7 @@ export function Comments({
       </div>
 
       {isLoading ? (
-        <div className="py-8 text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-          <p>Loading comments...</p>
-        </div>
+        <Loading />
       ) : comments.length > 0 ? (
         <div>
           <div className="space-y-6">
@@ -584,10 +586,7 @@ export function Comments({
                 disabled={loadingMore}
               >
                 {loadingMore ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
-                    Loading...
-                  </>
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-black" />
                 ) : (
                   <>
                     <ChevronDown className="h-4 w-4" />

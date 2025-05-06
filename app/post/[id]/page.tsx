@@ -7,6 +7,7 @@ import { MessageSquare, ChevronUp, ChevronDown } from "lucide-react";
 import { useParams } from "next/navigation";
 import { usePost } from "@/app/hooks/use-post";
 import { VoteButtons } from "@/app/components/VoteButtons";
+import Loading from "@/app/loading";
 
 // Mock data - replace with real data fetching
 const MOCK_POST = {
@@ -54,7 +55,7 @@ export default function PostPage() {
   const postId = params?.id as string;
   const { data: post, isLoading, error } = usePost(postId);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error || !post) return <div>Post not found</div>;
 
   return (

@@ -5,13 +5,22 @@ import { Button } from "@/components/ui/button";
 import { ThumbsDown, ThumbsUp, Reply, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
-import { type Comment, mockComments } from "@/app/mocks/comments";
+import { useState, useEffect } from "react";
+import { mockComments } from "@/app/mocks/comments";
 import {
   COMMENT_CONSTANTS,
   ROLE_STYLES,
   USER_ROLES,
 } from "@/app/constants/comments";
+import {
+  CommentData,
+  createComment,
+  getPostComments,
+  loadMoreReplies,
+  voteComment,
+} from "@/app/actions/comment";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 function CommentCard({
   comment,
@@ -19,23 +28,36 @@ function CommentCard({
   showFullThread = false,
   postId,
   nestingLevel = 0,
+  onReplyClick,
 }: {
-  comment: Comment;
+  comment: CommentData;
   isReply?: boolean;
   showFullThread?: boolean;
   postId?: string;
   nestingLevel?: number;
+  onReplyClick?: (commentId: string) => void;
 }) {
   const [loadedReplies, setLoadedReplies] = useState<number>(
     COMMENT_CONSTANTS.INITIAL_REPLIES_SHOWN
   );
   const [isLoading, setIsLoading] = useState(false);
+  const { isSignedIn } = useAuth();
 
   const handleLoadMore = async () => {
+    if (!postId || !comment.id) return;
+
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const newReplies = await loadMoreReplies(
+        comment.id,
+        loadedReplies,
+        COMMENT_CONSTANTS.LOAD_MORE_INCREMENT
+      );
+
+      if (newReplies.length > 0 && comment.replies) {
+        comment.replies = [...comment.replies, ...newReplies];
+      }
+
       setLoadedReplies((prev) =>
         Math.min(
           prev + COMMENT_CONSTANTS.LOAD_MORE_INCREMENT,
@@ -44,8 +66,23 @@ function CommentCard({
       );
     } catch (error) {
       console.error("Failed to load more replies:", error);
+      toast.error("Failed to load more replies");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVote = async (type: "UPVOTE" | "DOWNVOTE") => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to vote");
+      return;
+    }
+
+    try {
+      await voteComment(comment.id, type);
+    } catch (error) {
+      console.error("Failed to vote:", error);
+      toast.error("Failed to vote on comment");
     }
   };
 
@@ -79,15 +116,33 @@ function CommentCard({
         </div>
         <p className="mt-1 text-gray-800">{comment.content}</p>
         <div className="mt-2 flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="h-8 gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1"
+            onClick={() => handleVote("UPVOTE")}
+            disabled={!isSignedIn}
+          >
             <ThumbsUp className="h-4 w-4" />
             <span>{comment.upvotes}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1"
+            onClick={() => handleVote("DOWNVOTE")}
+            disabled={!isSignedIn}
+          >
             <ThumbsDown className="h-4 w-4" />
             <span>{comment.downvotes}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1"
+            onClick={() => onReplyClick?.(comment.id)}
+            disabled={!isSignedIn}
+          >
             <Reply className="h-4 w-4" />
             <span>Reply</span>
           </Button>
@@ -100,7 +155,7 @@ function CommentCard({
         </div>
 
         {/* Show replies */}
-        {comment.replies && (
+        {comment.replies && comment.replies.length > 0 && (
           <div className="mt-4 space-y-4">
             {comment.replies.slice(0, loadedReplies).map((reply) => (
               <CommentCard
@@ -110,6 +165,7 @@ function CommentCard({
                 showFullThread={showFullThread}
                 postId={postId}
                 nestingLevel={nestingLevel + 1}
+                onReplyClick={onReplyClick}
               />
             ))}
 
@@ -145,19 +201,71 @@ export function Comments({
   postId?: string;
   showFullThread?: boolean;
 }) {
-  const [sortBy, setSortBy] = useState("popular");
+  const [sortBy, setSortBy] = useState<"popular" | "newest" | "oldest">(
+    "popular"
+  );
   const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState<CommentData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [replyToId, setReplyToId] = useState<string | null>(null);
+  const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    async function fetchComments() {
+      if (!postId) return;
+
+      setIsLoading(true);
+      try {
+        const fetchedComments = await getPostComments(postId, sortBy);
+        setComments(fetchedComments);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+        // Fallback to empty array
+        setComments([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchComments();
+  }, [postId, sortBy]);
 
   const handlePostComment = async () => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !postId) return;
+    if (!isSignedIn) {
+      toast.error("Please sign in to comment");
+      return;
+    }
 
     try {
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setCommentText("");
+      const result = await createComment({
+        postId,
+        content: commentText,
+        ...(replyToId && { parentId: replyToId }),
+      });
+
+      if (result.success) {
+        setCommentText("");
+        setReplyToId(null);
+        // Refresh comments
+        const updatedComments = await getPostComments(postId, sortBy);
+        setComments(updatedComments);
+        toast.success("Comment posted successfully");
+      } else {
+        toast.error(result.error || "Failed to post comment");
+      }
     } catch (error) {
       console.error("Failed to post comment:", error);
+      toast.error("Failed to post comment");
     }
+  };
+
+  const handleReplyClick = (commentId: string) => {
+    setReplyToId(commentId);
+    // Scroll to comment form
+    document
+      .getElementById("comment-form")
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -167,7 +275,9 @@ export function Comments({
         <select
           className="rounded-md border px-3 py-1"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(e) =>
+            setSortBy(e.target.value as "popular" | "newest" | "oldest")
+          }
         >
           <option value="popular">Most popular</option>
           <option value="newest">Newest first</option>
@@ -175,29 +285,58 @@ export function Comments({
         </select>
       </div>
 
-      <div className="rounded-lg border p-4">
+      <div id="comment-form" className="rounded-lg border p-4">
+        {replyToId && (
+          <div className="mb-2 flex items-center justify-between rounded-md bg-gray-50 p-2">
+            <span className="text-sm">Replying to comment</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplyToId(null)}
+            >
+              Cancel
+            </Button>
+          </div>
+        )}
         <textarea
-          placeholder="Join the conversation..."
+          placeholder={
+            isSignedIn ? "Join the conversation..." : "Sign in to comment"
+          }
           className="w-full rounded-md border p-3"
           rows={3}
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
+          disabled={!isSignedIn}
         />
         <div className="mt-2 flex justify-end">
-          <Button onClick={handlePostComment}>Post Comment</Button>
+          <Button
+            onClick={handlePostComment}
+            disabled={!isSignedIn || !commentText.trim()}
+          >
+            {replyToId ? "Post Reply" : "Post Comment"}
+          </Button>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {mockComments.map((comment) => (
-          <CommentCard
-            key={comment.id}
-            comment={comment}
-            showFullThread={showFullThread}
-            postId={postId}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="py-8 text-center">Loading comments...</div>
+      ) : comments.length > 0 ? (
+        <div className="space-y-6">
+          {comments.map((comment) => (
+            <CommentCard
+              key={comment.id}
+              comment={comment}
+              showFullThread={showFullThread}
+              postId={postId}
+              onReplyClick={handleReplyClick}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="py-8 text-center text-gray-500">
+          No comments yet. Be the first to comment!
+        </div>
+      )}
     </div>
   );
 }

@@ -202,7 +202,7 @@ export function Comments({
   showFullThread?: boolean;
 }) {
   const [sortBy, setSortBy] = useState<"popular" | "newest" | "oldest">(
-    "popular"
+    "newest"
   );
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<CommentData[]>([]);
@@ -266,7 +266,8 @@ export function Comments({
             if (comment.id === replyToId) {
               return {
                 ...comment,
-                replies: [...(comment.replies || []), optimisticComment],
+                // For replies, add to the beginning of the replies array for "newest" order
+                replies: [optimisticComment, ...(comment.replies || [])],
                 totalReplies: comment.totalReplies + 1,
               };
             } else {
@@ -292,7 +293,7 @@ export function Comments({
           })
         );
       } else {
-        // It's a top-level comment
+        // It's a top-level comment - Add to the beginning for "newest" order
         setComments((prev) => [optimisticComment, ...prev]);
       }
 
@@ -364,9 +365,9 @@ export function Comments({
             setSortBy(e.target.value as "popular" | "newest" | "oldest")
           }
         >
-          <option value="popular">Most popular</option>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
+          <option value="popular">Most popular</option>
         </select>
       </div>
 

@@ -19,7 +19,7 @@ import {
   loadMoreReplies,
   voteComment,
 } from "@/app/actions/comment";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 function CommentCard({
@@ -207,8 +207,10 @@ export function Comments({
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [replyToId, setReplyToId] = useState<string | null>(null);
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
 
   useEffect(() => {
     async function fetchComments() {
@@ -232,12 +234,73 @@ export function Comments({
 
   const handlePostComment = async () => {
     if (!commentText.trim() || !postId) return;
-    if (!isSignedIn) {
+    if (!isSignedIn || !user) {
       toast.error("Please sign in to comment");
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
+      // Create optimistic comment to show immediately
+      const optimisticComment: CommentData = {
+        id: `temp-${Date.now()}`,
+        content: commentText,
+        author: {
+          id: user.id,
+          name: user.fullName || user.username || "User",
+          image: user.imageUrl || "",
+          role: "USER", // Default role
+        },
+        createdAt: "Just now",
+        upvotes: 0,
+        downvotes: 0,
+        totalReplies: 0,
+        replies: [],
+      };
+
+      // If it's a reply, add it to the parent comment's replies
+      if (replyToId) {
+        setComments((prev) =>
+          prev.map((comment) => {
+            if (comment.id === replyToId) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), optimisticComment],
+                totalReplies: comment.totalReplies + 1,
+              };
+            } else {
+              // Check nested replies
+              if (comment.replies?.some((reply) => reply.id === replyToId)) {
+                return {
+                  ...comment,
+                  replies: comment.replies.map((reply) => {
+                    if (reply.id === replyToId) {
+                      return {
+                        ...reply,
+                        // We can't show deeper nested replies in the UI currently,
+                        // but we increment the count
+                        totalReplies: reply.totalReplies + 1,
+                      };
+                    }
+                    return reply;
+                  }),
+                };
+              }
+              return comment;
+            }
+          })
+        );
+      } else {
+        // It's a top-level comment
+        setComments((prev) => [optimisticComment, ...prev]);
+      }
+
+      // Clear form
+      setCommentText("");
+      setReplyToId(null);
+
+      // Actually submit the comment
       const result = await createComment({
         postId,
         content: commentText,
@@ -245,18 +308,40 @@ export function Comments({
       });
 
       if (result.success) {
-        setCommentText("");
-        setReplyToId(null);
-        // Refresh comments
+        // Refresh comments to get the real data
         const updatedComments = await getPostComments(postId, sortBy);
         setComments(updatedComments);
         toast.success("Comment posted successfully");
       } else {
         toast.error(result.error || "Failed to post comment");
+        // Roll back optimistic update
+        if (replyToId) {
+          setComments((prev) =>
+            prev.map((comment) => {
+              if (comment.id === replyToId) {
+                return {
+                  ...comment,
+                  replies:
+                    comment.replies?.filter(
+                      (r) => r.id !== optimisticComment.id
+                    ) || [],
+                  totalReplies: comment.totalReplies - 1,
+                };
+              }
+              return comment;
+            })
+          );
+        } else {
+          setComments((prev) =>
+            prev.filter((c) => c.id !== optimisticComment.id)
+          );
+        }
       }
     } catch (error) {
       console.error("Failed to post comment:", error);
       toast.error("Failed to post comment");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -288,7 +373,12 @@ export function Comments({
       <div id="comment-form" className="rounded-lg border p-4">
         {replyToId && (
           <div className="mb-2 flex items-center justify-between rounded-md bg-gray-50 p-2">
-            <span className="text-sm">Replying to comment</span>
+            <span className="text-sm">
+              Replying to comment
+              {comments.find((c) => c.id === replyToId)
+                ? ` from ${comments.find((c) => c.id === replyToId)?.author.name}`
+                : ""}
+            </span>
             <Button
               variant="ghost"
               size="sm"
@@ -306,20 +396,32 @@ export function Comments({
           rows={3}
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          disabled={!isSignedIn}
+          disabled={!isSignedIn || isSubmitting}
         />
         <div className="mt-2 flex justify-end">
           <Button
             onClick={handlePostComment}
-            disabled={!isSignedIn || !commentText.trim()}
+            disabled={!isSignedIn || !commentText.trim() || isSubmitting}
           >
-            {replyToId ? "Post Reply" : "Post Comment"}
+            {isSubmitting ? (
+              <>
+                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
+                {replyToId ? "Posting Reply..." : "Posting Comment..."}
+              </>
+            ) : replyToId ? (
+              "Post Reply"
+            ) : (
+              "Post Comment"
+            )}
           </Button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="py-8 text-center">Loading comments...</div>
+        <div className="py-8 text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+          <p>Loading comments...</p>
+        </div>
       ) : comments.length > 0 ? (
         <div className="space-y-6">
           {comments.map((comment) => (

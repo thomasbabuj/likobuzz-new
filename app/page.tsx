@@ -2,6 +2,7 @@ import { Button } from "./ui/button";
 import { ChevronDown } from "lucide-react";
 import { PostFeed } from "./components/PostFeed";
 import { RightSidebar } from "./components/RightSidebar";
+import { Providers } from "./providers/Providers";
 
 export default function Home() {
   return (

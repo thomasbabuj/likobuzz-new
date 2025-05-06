@@ -37,6 +37,7 @@ alwaysApply: false
 - [x] PostForm (post creation/editing)
 - [x] TipTapEditor (rich text editor)
 - [x] VoteButtons (voting system)
+- [x] Standardized loading components
 
 ### 5. Core Features
 
@@ -49,7 +50,12 @@ alwaysApply: false
   - [x] Server actions for vote processing
   - [x] User-specific vote tracking
   - [x] Vote count display in post feed and details
-- [x] Comment system with threading (basic)
+- [x] Comment system with threading and pagination
+  - [x] Nested comments with reply functionality
+  - [x] Comment pagination with "load more" capability
+  - [x] Sorting options (newest, oldest, popular)
+  - [x] Optimistic updates for immediate UI feedback
+  - [x] Threaded conversations with expandable replies
 - [x] Post feed with infinite scrolling
 - [x] Post details page implementation
 - [x] API routes for post listing and details
@@ -58,6 +64,7 @@ alwaysApply: false
 
 - [x] TanStack Query (React Query) integration
 - [x] API routes for post data retrieval
+- [x] Consistent loading states throughout the application
 
 ## 🚧 Pending Tasks
 
@@ -147,11 +154,11 @@ alwaysApply: false
 
 ## 📊 Progress Tracking
 
-- Overall Progress: ~35%
-- Core Features: ~48%
+- Overall Progress: ~38%
+- Core Features: ~55%
 - Admin Features: ~10%
 - User Features: ~15%
-- Technical Implementation: ~40%
+- Technical Implementation: ~43%
 - Testing: ~0%
 - Deployment: ~0%
 - Documentation: ~5%
@@ -166,11 +173,12 @@ alwaysApply: false
 - Post creation and editing (admin) implemented
 - Rich text editor (TipTap) integrated
 - Comprehensive voting system implemented with optimistic updates and proper toggle behavior
-- Comment threading (basic) implemented
+- Comment threading system implemented with pagination, sorting, and optimistic updates
 - User model extended with new fields
 - Post feed with infinite scrolling (cursor pagination) implemented
 - Post details page implemented
 - TanStack Query integration for data fetching and state management
+- Implemented standardized loading components across the application for a consistent user experience
 
 ## 📅 Next Steps (Priority)
 

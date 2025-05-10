@@ -8,26 +8,55 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDistanceToNow } from "date-fns";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-async function getUsers() {
-  return prisma.user.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      imageUrl: true,
-      createdAt: true,
-      lastSignInAt: true,
-    },
-  });
+const PAGE_SIZE = 10;
+
+async function getUsers(page: number) {
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      skip,
+      take: PAGE_SIZE,
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        imageUrl: true,
+        createdAt: true,
+        lastSignInAt: true,
+      },
+    }),
+    prisma.user.count(),
+  ]);
+
+  return {
+    users,
+    total,
+    totalPages: Math.ceil(total / PAGE_SIZE),
+  };
 }
 
-export default async function UsersPage() {
-  const users = await getUsers();
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Number(searchParams.page) || 1;
+  const { users, totalPages } = await getUsers(page);
 
   return (
     <div className="space-y-8">
@@ -79,6 +108,59 @@ export default async function UsersPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href={`/admin/users?page=${page - 1}`}
+              aria-disabled={page <= 1}
+              className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (pageNum) => {
+              if (
+                pageNum === 1 ||
+                pageNum === totalPages ||
+                (pageNum >= page - 1 && pageNum <= page + 1)
+              ) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      href={`/admin/users?page=${pageNum}`}
+                      isActive={pageNum === page}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              }
+
+              if (pageNum === 2 || pageNum === totalPages - 1) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              return null;
+            }
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              href={`/admin/users?page=${page + 1}`}
+              aria-disabled={page >= totalPages}
+              className={
+                page >= totalPages ? "pointer-events-none opacity-50" : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

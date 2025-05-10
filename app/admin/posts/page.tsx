@@ -11,31 +11,60 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-async function getPosts() {
-  return prisma.post.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      author: {
-        select: {
-          firstName: true,
-          lastName: true,
+const PAGE_SIZE = 10;
+
+async function getPosts(page: number) {
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      skip,
+      take: PAGE_SIZE,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        author: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            votes: true,
+          },
         },
       },
-      _count: {
-        select: {
-          comments: true,
-          votes: true,
-        },
-      },
-    },
-  });
+    }),
+    prisma.post.count(),
+  ]);
+
+  return {
+    posts,
+    total,
+    totalPages: Math.ceil(total / PAGE_SIZE),
+  };
 }
 
-export default async function PostsPage() {
-  const posts = await getPosts();
+export default async function PostsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Number(searchParams.page) || 1;
+  const { posts, totalPages } = await getPosts(page);
 
   return (
     <div className="space-y-8">
@@ -87,6 +116,61 @@ export default async function PostsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href={`/admin/posts?page=${page - 1}`}
+              aria-disabled={page <= 1}
+              className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (pageNum) => {
+              // Show first page, last page, current page, and pages around current page
+              if (
+                pageNum === 1 ||
+                pageNum === totalPages ||
+                (pageNum >= page - 1 && pageNum <= page + 1)
+              ) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      href={`/admin/posts?page=${pageNum}`}
+                      isActive={pageNum === page}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              }
+
+              // Show ellipsis for gaps
+              if (pageNum === 2 || pageNum === totalPages - 1) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              return null;
+            }
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              href={`/admin/posts?page=${page + 1}`}
+              aria-disabled={page >= totalPages}
+              className={
+                page >= totalPages ? "pointer-events-none opacity-50" : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

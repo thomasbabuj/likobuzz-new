@@ -8,56 +8,85 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDistanceToNow } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-async function getComments() {
-  return prisma.comment.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      author: {
-        select: {
-          firstName: true,
-          lastName: true,
-          imageUrl: true,
+const PAGE_SIZE = 10;
+
+async function getComments(page: number) {
+  const skip = (page - 1) * PAGE_SIZE;
+
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      skip,
+      take: PAGE_SIZE,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        author: {
+          select: {
+            firstName: true,
+            lastName: true,
+            imageUrl: true,
+          },
+        },
+        post: {
+          select: {
+            title: true,
+            slug: true,
+          },
         },
       },
-      post: {
-        select: {
-          title: true,
-          slug: true,
-        },
-      },
-    },
-  });
+    }),
+    prisma.comment.count(),
+  ]);
+
+  return {
+    comments,
+    total,
+    totalPages: Math.ceil(total / PAGE_SIZE),
+  };
 }
 
-export default async function CommentsPage() {
-  const comments = await getComments();
+export default async function CommentsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Number(searchParams.page) || 1;
+  const { comments, totalPages } = await getComments(page);
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Comments</h1>
-        <p className="text-muted-foreground">Manage and moderate comments</p>
+        <p className="text-muted-foreground">Manage your platform comments</p>
       </div>
 
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
               <TableHead>Comment</TableHead>
+              <TableHead>Author</TableHead>
               <TableHead>Post</TableHead>
               <TableHead>Created</TableHead>
-              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {comments.map((comment) => (
               <TableRow key={comment.id}>
+                <TableCell className="max-w-md truncate">
+                  {comment.content}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {comment.author.imageUrl && (
@@ -72,13 +101,10 @@ export default async function CommentsPage() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="max-w-md truncate">
-                  {comment.content}
-                </TableCell>
                 <TableCell>
                   <a
                     href={`/posts/${comment.post.slug}`}
-                    className="text-primary hover:underline"
+                    className="hover:underline"
                   >
                     {comment.post.title}
                   </a>
@@ -86,20 +112,64 @@ export default async function CommentsPage() {
                 <TableCell>
                   {formatDistanceToNow(comment.createdAt, { addSuffix: true })}
                 </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href={`/admin/comments?page=${page - 1}`}
+              aria-disabled={page <= 1}
+              className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (pageNum) => {
+              if (
+                pageNum === 1 ||
+                pageNum === totalPages ||
+                (pageNum >= page - 1 && pageNum <= page + 1)
+              ) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      href={`/admin/comments?page=${pageNum}`}
+                      isActive={pageNum === page}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              }
+
+              if (pageNum === 2 || pageNum === totalPages - 1) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              return null;
+            }
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              href={`/admin/comments?page=${page + 1}`}
+              aria-disabled={page >= totalPages}
+              className={
+                page >= totalPages ? "pointer-events-none opacity-50" : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

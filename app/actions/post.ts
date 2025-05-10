@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { postCreateSchema, type PostCreateInput } from "@/lib/validations/post";
-import { slugify } from "../lib/utils";
+import { slugify } from "@/lib/utils";
 
 export async function createPost(input: PostCreateInput) {
   const { userId } = await auth();

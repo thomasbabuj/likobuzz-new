@@ -144,31 +144,35 @@ function CommentCard({
   return (
     <div
       className={cn(
-        "flex gap-4",
-        isReply &&
-          `ml-${indentationLevel * 8} mt-4 border-l-2 border-gray-100 pl-4`
+        "flex gap-3 md:gap-4",
+        isReply
+          ? "ml-2 md:ml-8 mt-3 md:mt-4 border-l-2 border-red-200 bg-red-50 md:bg-white pl-2 md:pl-4 rounded-xl w-[95%] max-w-[95%]"
+          : "mt-0"
       )}
     >
       <Avatar>
         <AvatarImage src={comment.author.image} alt={comment.author.name} />
         <AvatarFallback>{comment.author.name[0]}</AvatarFallback>
       </Avatar>
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">{comment.author.name}</span>
-          {comment.author.role && (
-            <span className={cn("rounded px-2 py-0.5 text-xs", roleStyle)}>
-              {comment.author.role}
-            </span>
+      <div
+        className={cn("flex-1", isReply ? "flex flex-col items-start p-3" : "")}
+      >
+        <div
+          className={cn(
+            "flex items-center gap-2 w-full",
+            isReply ? "mb-1" : ""
           )}
-          <span className="text-sm text-gray-500">{comment.createdAt}</span>
+        >
+          <span className="font-semibold">{comment.author.name}</span>
         </div>
-        <p className="mt-1 text-gray-800">{comment.content}</p>
-        <div className="mt-2 flex items-center gap-4">
+        <p className="mt-1 text-gray-800 w-full break-words">
+          {comment.content}
+        </p>
+        <div className="mt-2 flex items-center gap-4 w-full">
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 gap-1"
+            className="h-8 gap-1 hidden md:flex"
             onClick={() => handleVote("UPVOTE")}
             disabled={!isSignedIn}
           >
@@ -178,7 +182,7 @@ function CommentCard({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 gap-1"
+            className="h-8 gap-1 hidden md:flex"
             onClick={() => handleVote("DOWNVOTE")}
             disabled={!isSignedIn}
           >
@@ -194,7 +198,13 @@ function CommentCard({
           >
             <Reply className="h-4 w-4" />
             <span>Reply</span>
+            <span className="ml-2 text-xs text-gray-500 md:hidden">
+              {comment.createdAt}
+            </span>
           </Button>
+          <span className="text-sm text-gray-500 hidden md:inline">
+            {comment.createdAt}
+          </span>
           {!isReply && comment.totalReplies > 0 && (
             <div className="flex items-center gap-1 text-sm text-gray-500">
               <MessageCircle className="h-4 w-4" />
@@ -493,14 +503,21 @@ export function Comments({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
-          Comments{" "}
-          {totalComments > 0 && (
-            <span className="text-sm text-gray-500">({totalComments})</span>
-          )}
-        </h2>
+        <div className="flex items-center gap-2">
+          {/* Mobile: comment icon and count */}
+          <span className="md:hidden flex items-center gap-1 font-semibold text-lg">
+            <MessageCircle className="h-5 w-5 text-red-500" />
+            {totalComments}
+          </span>
+          <h2 className="hidden md:block text-xl font-semibold">
+            Comments
+            {totalComments > 0 && (
+              <span className="text-sm text-gray-500">({totalComments})</span>
+            )}
+          </h2>
+        </div>
         <select
-          className="rounded-md border px-3 py-1"
+          className="rounded-full border px-3 py-1 text-sm md:rounded-md md:text-base"
           value={sortBy}
           onChange={(e) =>
             setSortBy(e.target.value as "popular" | "newest" | "oldest")
@@ -512,7 +529,11 @@ export function Comments({
         </select>
       </div>
 
-      <div id="comment-form" className="rounded-lg border p-4">
+      {/* Comment box */}
+      <div
+        id="comment-form"
+        className="rounded-xl border md:border p-4 md:bg-white bg-red-50 border-red-200 md:border-gray-200"
+      >
         {replyToId && (
           <div className="mb-2 flex items-center justify-between rounded-md bg-gray-50 p-2">
             <span className="text-sm">
@@ -530,48 +551,86 @@ export function Comments({
             </Button>
           </div>
         )}
-        <textarea
-          placeholder={
-            isSignedIn ? "Join the conversation..." : "Sign in to comment"
-          }
-          className="w-full rounded-md border p-3"
-          rows={3}
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          disabled={!isSignedIn || isSubmitting}
-        />
-        <div className="mt-2 flex justify-end">
-          <Button
-            onClick={handlePostComment}
-            disabled={!isSignedIn || !commentText.trim() || isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-4 border-slate-200 border-t-black"></span>
-                {replyToId ? "Posting Reply..." : "Posting Comment..."}
-              </>
-            ) : replyToId ? (
-              "Post Reply"
-            ) : (
-              "Post Comment"
-            )}
-          </Button>
+        <div className="flex flex-col gap-2">
+          <textarea
+            placeholder={
+              isSignedIn ? "Join the conversation..." : "Sign in to comment"
+            }
+            className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-[15px] focus:border-red-400 focus:ring-0 md:bg-white md:border-gray-200"
+            rows={3}
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            disabled={!isSignedIn || isSubmitting}
+          />
+          {/* Mobile: icons row */}
+          <div className="flex gap-3 items-center text-red-400 text-lg md:hidden mb-1">
+            <span className="cursor-pointer">
+              <span role="img" aria-label="emoji">
+                😊
+              </span>
+            </span>
+            <span className="cursor-pointer">
+              <span role="img" aria-label="image">
+                🖼️
+              </span>
+            </span>
+            <span className="cursor-pointer">
+              <span role="img" aria-label="gif">
+                GIF
+              </span>
+            </span>
+            <span className="cursor-pointer">
+              <span role="img" aria-label="video">
+                🎥
+              </span>
+            </span>
+            <span className="cursor-pointer">
+              <span role="img" aria-label="text">
+                Aa
+              </span>
+            </span>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              onClick={handlePostComment}
+              disabled={!isSignedIn || !commentText.trim() || isSubmitting}
+              className="rounded-full bg-red-500 hover:bg-red-600 text-white px-6 py-2 font-semibold md:rounded-md md:bg-primary md:hover:bg-primary/90 md:text-base md:px-4 md:py-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-4 border-slate-200 border-t-black"></span>
+                  {replyToId ? "Posting Reply..." : "Posting Comment..."}
+                </>
+              ) : replyToId ? (
+                "Post Reply"
+              ) : (
+                "Post Comment"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Divider for mobile */}
+      <div className="md:hidden border-t border-gray-200 my-2" />
 
       {isLoading ? (
         <Loading />
       ) : comments.length > 0 ? (
         <div>
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {comments.map((comment) => (
-              <CommentCard
+              <div
+                className="rounded-xl bg-white md:bg-transparent p-3 md:p-0 border border-gray-100 md:border-0"
                 key={comment.id}
-                comment={comment}
-                showFullThread={showFullThread}
-                postId={postId}
-                onReplyClick={handleReplyClick}
-              />
+              >
+                <CommentCard
+                  comment={comment}
+                  showFullThread={showFullThread}
+                  postId={postId}
+                  onReplyClick={handleReplyClick}
+                />
+              </div>
             ))}
           </div>
 

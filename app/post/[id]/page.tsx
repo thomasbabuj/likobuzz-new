@@ -59,14 +59,27 @@ export default function PostPage() {
   if (error || !post) return <div>Post not found</div>;
 
   return (
-    <div className="container mx-auto px-4 py-4 lg:py-8">
+    <div className="container mx-auto px-2 py-2 lg:py-8">
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Main content area */}
         <div className="flex-1 min-w-0">
           <article className="bg-white rounded-lg border">
-            <div className="flex">
-              {/* Left vote column */}
-              <div className="flex flex-col items-center py-4 px-4 bg-slate-50 rounded-l-lg border-r">
+            {/* MOBILE: Vote buttons above content */}
+            <div className="md:hidden mb-2">
+              <VoteButtons
+                postId={post.id}
+                initialUpvotes={post.upvotes}
+                initialDownvotes={post.downvotes}
+                initialUserVote={post.userVote}
+                orientation="horizontal"
+                size="lg"
+                className="w-full justify-center"
+              />
+            </div>
+
+            <div className="flex flex-col md:flex-row">
+              {/* DESKTOP: Left vote column */}
+              <div className="hidden md:flex flex-col items-center py-4 px-4 bg-slate-50 rounded-l-lg border-r">
                 <VoteButtons
                   postId={post.id}
                   initialUpvotes={post.upvotes}
@@ -77,50 +90,46 @@ export default function PostPage() {
               </div>
 
               {/* Main content */}
-              <div className="flex-1 min-w-0 p-6">
-                {/* Category */}
-                <div className="mb-3">
+              <div className="flex-1 min-w-0 p-3 md:p-6">
+                {/* Category, Title, Author, Timestamp */}
+                <div className="flex flex-col gap-1 mb-2">
                   <Badge
                     variant="secondary"
-                    className="bg-red-600 text-white hover:bg-red-700"
+                    className="bg-red-600 text-white hover:bg-red-700 w-fit"
                   >
                     {post.categories}
                   </Badge>
-                </div>
-
-                {/* Title */}
-                <h1 className="text-2xl font-bold leading-tight mb-4">
-                  {post.title}
-                </h1>
-
-                {/* Author info */}
-                <div className="flex items-center gap-3 mb-6">
-                  <Badge
-                    variant="secondary"
-                    className="bg-red-600 text-white hover:bg-red-700"
-                  >
-                    {MOCK_POST.authorBadge}
-                  </Badge>
-                  <div className="text-sm text-muted-foreground">
-                    Posted by{" "}
-                    <span className="text-foreground">{post.author}</span>
-                    <span className="mx-2">•</span>
-                    {post.createdAt}
+                  <h1 className="text-xl md:text-2xl font-bold leading-tight mb-1 md:mb-4">
+                    {post.title}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <Badge
+                      variant="secondary"
+                      className="bg-red-600 text-white hover:bg-red-700"
+                    >
+                      {MOCK_POST.authorBadge}
+                    </Badge>
+                    <span>
+                      Posted by{" "}
+                      <span className="text-foreground">{post.author}</span>
+                    </span>
+                    <span>•</span>
+                    <span>{post.createdAt}</span>
                   </div>
                 </div>
-
                 {/* Content */}
-                <div className="space-y-4 mb-6">
-                  {/* {post.content.map((block, index) => (
-                    <p key={index} className="text-base leading-relaxed">
-                      {block.content}
-                    </p>
-                  ))} */}
-                  {post.content}
+                <div className="mb-3 space-y-4">{post.content}</div>
+                {/* Stats row */}
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                  <MessageSquare className="h-4 w-4" />
+                  <span>{post.commentCount} Comments</span>
+                  <span>•</span>
+                  <span>{MOCK_POST.views.toLocaleString()} views</span>
+                  <span>•</span>
+                  <span>{post.upvotePercentage}% Upvoted</span>
                 </div>
-
                 {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {MOCK_POST.tags.map((tag) => (
                     <Badge
                       key={tag}
@@ -131,22 +140,9 @@ export default function PostPage() {
                     </Badge>
                   ))}
                 </div>
-
-                {/* Stats */}
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    <span>{post.commentCount} Comments</span>
-                  </div>
-                  <span>•</span>
-                  <span>{MOCK_POST.views.toLocaleString()} views</span>
-                  <span>•</span>
-                  <span>{post.upvotePercentage}% Upvoted</span>
-                </div>
-
-                {/* Share buttons */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Share this article</h3>
+                {/* Share */}
+                <div className="space-y-1 mb-2">
+                  <h3 className="text-xs font-medium">Share this article</h3>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -164,19 +160,6 @@ export default function PostPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Mobile Vote Buttons - below content on small screens */}
-            <div className="md:hidden">
-              <VoteButtons
-                postId={post.id}
-                initialUpvotes={post.upvotes}
-                initialDownvotes={post.downvotes}
-                initialUserVote={post.userVote}
-                orientation="horizontal"
-                size="lg"
-                className="border-t"
-              />
             </div>
 
             {/* Navigation */}

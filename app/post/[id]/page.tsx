@@ -118,7 +118,11 @@ export default function PostPage() {
                   </div>
                 </div>
                 {/* Content */}
-                <div className="mb-3 space-y-4">{post.content}</div>
+                <div
+                  className="mb-3 space-y-4 prose prose-slate max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+
                 {/* Stats row */}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
                   <MessageSquare className="h-4 w-4" />

@@ -1,46 +1,92 @@
 // app/admin/posts/page.tsx
-import { db } from "@/lib/db";
-import { PostListTable } from "@/app/components/admin/PostListTable";
+import { prisma } from "@/lib/prisma";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
-const PAGE_SIZE = 10;
-
-export default async function AdminPostListPage({
-  searchParams,
-}: {
-  searchParams: { page?: string };
-}) {
-  const page = Number(searchParams.page) > 0 ? Number(searchParams.page) : 1;
-  const skip = (page - 1) * PAGE_SIZE;
-
-  const [posts, total] = await Promise.all([
-    db.post.findMany({
-      skip,
-      take: PAGE_SIZE,
-      orderBy: { createdAt: "desc" },
-      include: {
-        author: { select: { username: true, id: true } },
-        categories: { select: { name: true, id: true } },
-        _count: { select: { comments: true } },
+async function getPosts() {
+  return prisma.post.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      author: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
       },
-    }),
-    db.post.count(),
-  ]);
+      _count: {
+        select: {
+          comments: true,
+          votes: true,
+        },
+      },
+    },
+  });
+}
 
-  // Map to your prop shape:
-  const mappedPosts = posts.map((post) => ({
-    ...post,
-    commentsCount: post._count.comments,
-  }));
+export default async function PostsPage() {
+  const posts = await getPosts();
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Posts</h1>
-      <PostListTable
-        posts={mappedPosts}
-        total={total}
-        page={page}
-        pageSize={PAGE_SIZE}
-      />
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Posts</h1>
+          <p className="text-muted-foreground">Manage your platform posts</p>
+        </div>
+        <Button asChild>
+          <Link href="/admin/posts/create">
+            <Plus className="mr-2 h-4 w-4" />
+            New Post
+          </Link>
+        </Button>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Author</TableHead>
+              <TableHead>Comments</TableHead>
+              <TableHead>Votes</TableHead>
+              <TableHead>Created</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {posts.map((post) => (
+              <TableRow key={post.id}>
+                <TableCell>
+                  <a
+                    href={`/posts/${post.slug}`}
+                    className="font-medium hover:underline"
+                  >
+                    {post.title}
+                  </a>
+                </TableCell>
+                <TableCell>
+                  {post.author.firstName} {post.author.lastName}
+                </TableCell>
+                <TableCell>{post._count.comments}</TableCell>
+                <TableCell>{post._count.votes}</TableCell>
+                <TableCell>
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

@@ -17,18 +17,38 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { UserFilters } from "./components/UserFilters";
 
 const PAGE_SIZE = 10;
 
-async function getUsers(page: number) {
+type SortField = "createdAt" | "lastSignInAt" | "firstName";
+type SortOrder = "asc" | "desc";
+
+async function getUsers(
+  page: number,
+  sortField: SortField = "createdAt",
+  sortOrder: SortOrder = "desc",
+  search?: string
+) {
   const skip = (page - 1) * PAGE_SIZE;
+
+  const where = search
+    ? {
+        OR: [
+          { firstName: { contains: search, mode: "insensitive" as const } },
+          { lastName: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       skip,
       take: PAGE_SIZE,
+      where,
       orderBy: {
-        createdAt: "desc",
+        [sortField]: sortOrder,
       },
       select: {
         id: true,
@@ -40,7 +60,7 @@ async function getUsers(page: number) {
         lastSignInAt: true,
       },
     }),
-    prisma.user.count(),
+    prisma.user.count({ where }),
   ]);
 
   return {
@@ -53,10 +73,36 @@ async function getUsers(page: number) {
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: {
+    page?: string;
+    sort?: string;
+    order?: string;
+    search?: string;
+  };
 }) {
   const page = Number(searchParams.page) || 1;
-  const { users, totalPages } = await getUsers(page);
+  const sortField = (searchParams.sort as SortField) || "createdAt";
+  const sortOrder = (searchParams.order as SortOrder) || "desc";
+  const search = searchParams.search || "";
+
+  const { users, totalPages } = await getUsers(
+    page,
+    sortField,
+    sortOrder,
+    search
+  );
+
+  const createQueryString = (params: Record<string, string | number>) => {
+    const searchParams = new URLSearchParams();
+    if (page) searchParams.set("page", page.toString());
+    if (sortField) searchParams.set("sort", sortField);
+    if (sortOrder) searchParams.set("order", sortOrder);
+    if (search) searchParams.set("search", search);
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.set(key, value.toString());
+    });
+    return searchParams.toString();
+  };
 
   return (
     <div className="space-y-8">
@@ -64,6 +110,12 @@ export default async function UsersPage({
         <h1 className="text-3xl font-bold">Users</h1>
         <p className="text-muted-foreground">Manage your platform users</p>
       </div>
+
+      <UserFilters
+        sortField={sortField}
+        sortOrder={sortOrder}
+        search={search}
+      />
 
       <div className="rounded-md border">
         <Table>
@@ -113,7 +165,7 @@ export default async function UsersPage({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href={`/admin/users?page=${page - 1}`}
+              href={`/admin/users?${createQueryString({ page: page - 1 })}`}
               aria-disabled={page <= 1}
               className={page <= 1 ? "pointer-events-none opacity-50" : ""}
             />
@@ -129,7 +181,7 @@ export default async function UsersPage({
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
-                      href={`/admin/users?page=${pageNum}`}
+                      href={`/admin/users?${createQueryString({ page: pageNum })}`}
                       isActive={pageNum === page}
                     >
                       {pageNum}
@@ -152,7 +204,7 @@ export default async function UsersPage({
 
           <PaginationItem>
             <PaginationNext
-              href={`/admin/users?page=${page + 1}`}
+              href={`/admin/users?${createQueryString({ page: page + 1 })}`}
               aria-disabled={page >= totalPages}
               className={
                 page >= totalPages ? "pointer-events-none opacity-50" : ""

@@ -17,18 +17,49 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { TableFilters } from "../components/table-filters";
 
 const PAGE_SIZE = 10;
 
-async function getComments(page: number) {
+type SortField = "createdAt" | "content";
+type SortOrder = "asc" | "desc";
+
+async function getComments(
+  page: number,
+  sortField: SortField = "createdAt",
+  sortOrder: SortOrder = "desc",
+  search?: string
+) {
   const skip = (page - 1) * PAGE_SIZE;
+
+  const where = search
+    ? {
+        OR: [
+          { content: { contains: search, mode: "insensitive" as const } },
+          {
+            author: {
+              firstName: { contains: search, mode: "insensitive" as const },
+            },
+          },
+          {
+            author: {
+              lastName: { contains: search, mode: "insensitive" as const },
+            },
+          },
+          {
+            post: { title: { contains: search, mode: "insensitive" as const } },
+          },
+        ],
+      }
+    : {};
 
   const [comments, total] = await Promise.all([
     prisma.comment.findMany({
       skip,
       take: PAGE_SIZE,
+      where,
       orderBy: {
-        createdAt: "desc",
+        [sortField]: sortOrder,
       },
       include: {
         author: {
@@ -46,7 +77,7 @@ async function getComments(page: number) {
         },
       },
     }),
-    prisma.comment.count(),
+    prisma.comment.count({ where }),
   ]);
 
   return {
@@ -59,10 +90,36 @@ async function getComments(page: number) {
 export default async function CommentsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: {
+    page?: string;
+    sort?: string;
+    order?: string;
+    search?: string;
+  };
 }) {
   const page = Number(searchParams.page) || 1;
-  const { comments, totalPages } = await getComments(page);
+  const sortField = (searchParams.sort as SortField) || "createdAt";
+  const sortOrder = (searchParams.order as SortOrder) || "desc";
+  const search = searchParams.search || "";
+
+  const { comments, totalPages } = await getComments(
+    page,
+    sortField,
+    sortOrder,
+    search
+  );
+
+  const createQueryString = (params: Record<string, string | number>) => {
+    const searchParams = new URLSearchParams();
+    if (page) searchParams.set("page", page.toString());
+    if (sortField) searchParams.set("sort", sortField);
+    if (sortOrder) searchParams.set("order", sortOrder);
+    if (search) searchParams.set("search", search);
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.set(key, value.toString());
+    });
+    return searchParams.toString();
+  };
 
   return (
     <div className="space-y-8">
@@ -70,6 +127,16 @@ export default async function CommentsPage({
         <h1 className="text-3xl font-bold">Comments</h1>
         <p className="text-muted-foreground">Manage your platform comments</p>
       </div>
+
+      <TableFilters
+        searchPlaceholder="Search comments..."
+        sortOptions={[
+          { value: "createdAt", label: "Created Date" },
+          { value: "content", label: "Content" },
+        ]}
+        defaultSortField="createdAt"
+        defaultSortOrder="desc"
+      />
 
       <div className="rounded-md border">
         <Table>
@@ -122,7 +189,7 @@ export default async function CommentsPage({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href={`/admin/comments?page=${page - 1}`}
+              href={`/admin/comments?${createQueryString({ page: page - 1 })}`}
               aria-disabled={page <= 1}
               className={page <= 1 ? "pointer-events-none opacity-50" : ""}
             />
@@ -138,7 +205,7 @@ export default async function CommentsPage({
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
-                      href={`/admin/comments?page=${pageNum}`}
+                      href={`/admin/comments?${createQueryString({ page: pageNum })}`}
                       isActive={pageNum === page}
                     >
                       {pageNum}
@@ -161,7 +228,7 @@ export default async function CommentsPage({
 
           <PaginationItem>
             <PaginationNext
-              href={`/admin/comments?page=${page + 1}`}
+              href={`/admin/comments?${createQueryString({ page: page + 1 })}`}
               aria-disabled={page >= totalPages}
               className={
                 page >= totalPages ? "pointer-events-none opacity-50" : ""

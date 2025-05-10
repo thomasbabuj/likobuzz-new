@@ -20,19 +20,56 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { TableFilters } from "../components/table-filters";
+import { TablePagination } from "../components/table-pagination";
 
 const PAGE_SIZE = 10;
 
-async function getPosts(page: number) {
+type SortField = "createdAt" | "title" | "_count";
+type SortOrder = "asc" | "desc";
+
+async function getPosts(
+  page: number,
+  sortField: SortField = "createdAt",
+  sortOrder: SortOrder = "desc",
+  search?: string
+) {
   const skip = (page - 1) * PAGE_SIZE;
+
+  const where = search
+    ? {
+        OR: [
+          { title: { contains: search, mode: "insensitive" as const } },
+          { content: { contains: search, mode: "insensitive" as const } },
+          {
+            author: {
+              firstName: { contains: search, mode: "insensitive" as const },
+            },
+          },
+          {
+            author: {
+              lastName: { contains: search, mode: "insensitive" as const },
+            },
+          },
+        ],
+      }
+    : {};
 
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
       skip,
       take: PAGE_SIZE,
-      orderBy: {
-        createdAt: "desc",
-      },
+      where,
+      orderBy:
+        sortField === "_count"
+          ? {
+              comments: {
+                _count: sortOrder,
+              },
+            }
+          : {
+              [sortField]: sortOrder,
+            },
       include: {
         author: {
           select: {
@@ -48,7 +85,7 @@ async function getPosts(page: number) {
         },
       },
     }),
-    prisma.post.count(),
+    prisma.post.count({ where }),
   ]);
 
   return {
@@ -61,10 +98,32 @@ async function getPosts(page: number) {
 export default async function PostsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: {
+    page?: string;
+    sort?: string;
+    order?: string;
+    search?: string;
+  };
 }) {
   const page = Number(searchParams.page) || 1;
-  const { posts, totalPages } = await getPosts(page);
+  const sortField = (searchParams.sort as SortField) || "createdAt";
+  const sortOrder = (searchParams.order as SortOrder) || "desc";
+  const search = searchParams.search;
+
+  const { posts, totalPages } = await getPosts(
+    page,
+    sortField,
+    sortOrder,
+    search
+  );
+
+  const createQueryString = (params: Record<string, string | number>) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.set(key, value.toString());
+    });
+    return searchParams.toString();
+  };
 
   return (
     <div className="space-y-8">
@@ -80,6 +139,17 @@ export default async function PostsPage({
           </Link>
         </Button>
       </div>
+
+      <TableFilters
+        searchPlaceholder="Search posts..."
+        sortOptions={[
+          { value: "createdAt", label: "Created Date" },
+          { value: "title", label: "Title" },
+          { value: "_count", label: "Comments" },
+        ]}
+        defaultSortField="createdAt"
+        defaultSortOrder="desc"
+      />
 
       <div className="rounded-md border">
         <Table>
@@ -117,60 +187,7 @@ export default async function PostsPage({
         </Table>
       </div>
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href={`/admin/posts?page=${page - 1}`}
-              aria-disabled={page <= 1}
-              className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-            />
-          </PaginationItem>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-            (pageNum) => {
-              // Show first page, last page, current page, and pages around current page
-              if (
-                pageNum === 1 ||
-                pageNum === totalPages ||
-                (pageNum >= page - 1 && pageNum <= page + 1)
-              ) {
-                return (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      href={`/admin/posts?page=${pageNum}`}
-                      isActive={pageNum === page}
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              }
-
-              // Show ellipsis for gaps
-              if (pageNum === 2 || pageNum === totalPages - 1) {
-                return (
-                  <PaginationItem key={pageNum}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                );
-              }
-
-              return null;
-            }
-          )}
-
-          <PaginationItem>
-            <PaginationNext
-              href={`/admin/posts?page=${page + 1}`}
-              aria-disabled={page >= totalPages}
-              className={
-                page >= totalPages ? "pointer-events-none opacity-50" : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <TablePagination currentPage={page} totalPages={totalPages} />
     </div>
   );
 }

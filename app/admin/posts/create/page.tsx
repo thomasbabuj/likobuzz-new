@@ -12,11 +12,16 @@ export default async function CreatePostPage() {
   }
 
   return (
-    <div className="container py-10">
-      <div className="flex flex-col gap-4 max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold">Create New Post</h1>
-        <PostForm />
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Create New Post</h1>
+          <p className="text-muted-foreground">
+            Create a new post to share with the community
+          </p>
+        </div>
       </div>
+      <PostForm />
     </div>
   );
 }

@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TipTapEditor } from "@/app/components/editor/TipTapEditor";
+import { UploadButton } from "@/app/utils/uploadthing";
+import { Loader2 } from "lucide-react";
 
 import { createPost, updatePost } from "@/app/actions/post";
 import { postCreateSchema, type PostCreateInput } from "@/lib/validations/post";
@@ -45,6 +47,10 @@ export function PostForm({
 }: PostFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(
+    post?.imageUrl || null
+  );
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<PostCreateInput>({
     resolver: zodResolver(postCreateSchema),
@@ -143,7 +149,62 @@ export function PostForm({
           )}
         />
 
-        {/* Images and Videos fields (optional, as in your create form) */}
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Featured Image</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  {imageUrl && (
+                    <div className="relative w-40 h-40">
+                      <img
+                        src={imageUrl}
+                        alt="Featured"
+                        className="object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageUrl(null);
+                          field.onChange(null);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  <div className="relative">
+                    <UploadButton
+                      endpoint="imageUploader"
+                      onUploadBegin={() => setIsUploading(true)}
+                      onClientUploadComplete={(res) => {
+                        setIsUploading(false);
+                        if (res?.[0]) {
+                          setImageUrl(res[0].url);
+                          field.onChange(res[0].url);
+                        }
+                      }}
+                      onUploadError={(error: Error) => {
+                        setIsUploading(false);
+                        toast.error(`ERROR! ${error.message}`);
+                      }}
+                      className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-gray-400 transition-colors bg-gray-50 hover:bg-gray-100"
+                    />
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

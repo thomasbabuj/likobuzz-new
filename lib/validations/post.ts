@@ -7,6 +7,7 @@ export const postCreateSchema = z.object({
   images: z.array(z.string()).optional().default([]),
   videos: z.array(z.string()).optional().default([]),
   published: z.boolean().default(false),
+  imageUrl: z.string().nullable().optional(),
 });
 
 export type PostCreateInput = z.infer<typeof postCreateSchema>;

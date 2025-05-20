@@ -96,11 +96,14 @@ export function PostFeed() {
   return (
     <div className="space-y-4">
       {posts.map((post, index) => (
-        <article key={post.id} className="bg-white">
-          {/* Desktop/Tablet Layout */}
-          <div className="hidden sm:flex border rounded-lg">
-            {/* Vote Column */}
-            <div className="flex flex-col items-center py-2 px-3 bg-slate-50 rounded-l-lg border-r">
+        <article
+          key={post.id}
+          className="bg-white rounded-lg shadow overflow-hidden border"
+        >
+          {/* Desktop */}
+          <div className="hidden sm:flex">
+            {/* Vote bar */}
+            <div className="flex flex-col items-center justify-center bg-slate-50 px-3 py-4 border-r">
               <VoteButtons
                 postId={post.id}
                 initialUpvotes={post.upvotes}
@@ -109,105 +112,101 @@ export function PostFeed() {
                 size="sm"
               />
             </div>
-
+            {/* Image with badge */}
+            <div className="relative w-40 h-40 flex-shrink-0 border-r">
+              <Image
+                src={post.imageUrl || "/assets/likobuzz_post_placeholder_2.png"}
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
+              <span className="absolute bottom-2 left-2 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded">
+                {post.category || "NEWS"}
+              </span>
+              <span className="absolute top-2 right-2 text-3xl font-bold text-white drop-shadow-lg">
+                {index + 1}
+              </span>
+            </div>
             {/* Content */}
-            <div className="flex-1 p-3">
-              {/* Category and Title */}
-              <div className="space-y-2">
-                <div className="inline-block px-2 py-1 text-xs font-medium text-white bg-red-600 rounded">
-                  {post.categories}
-                </div>
-                <Link href={`/post/${post.id}`}>
-                  <h2 className="text-lg font-semibold hover:text-blue-600">
-                    {post.title}
-                  </h2>
-                </Link>
-              </div>
-
-              {/* Post Meta */}
-              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex-1 flex flex-col justify-between p-4">
+              <Link href={`/post/${post.id}`}>
+                <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">
+                  {post.title}
+                </h2>
+              </Link>
+              <div className="mt-2 flex flex-wrap items-center text-sm text-gray-500 gap-x-2 gap-y-1">
                 <span>Posted by {post.author}</span>
-                <span>•</span>
+                <span>·</span>
                 <span>{post.timeAgo || ""}</span>
                 {post.views && (
                   <>
-                    <span>•</span>
+                    <span>·</span>
                     <span>{post.views} views</span>
                   </>
                 )}
-                <span>•</span>
+                <span>·</span>
                 <span>
-                  {post.commentCount}{" "}
-                  {post.commentCount === 1 ? "Comment" : "Comments"}
+                  {post.commentCount ?? post.comments ?? 0}{" "}
+                  {(post.commentCount ?? post.comments ?? 0) === 1
+                    ? "Comment"
+                    : "Comments"}
                 </span>
               </div>
             </div>
-
-            {/* Thumbnail */}
-            {post.image && (
-              <div className="w-[120px] relative">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={120}
-                  height={120}
-                  className="object-cover h-full rounded-r-lg"
-                />
-                <div className="absolute top-2 right-2 text-3xl font-bold text-white drop-shadow-lg">
-                  {index + 1}
-                </div>
-              </div>
-            )}
           </div>
-
-          {/* Mobile Layout */}
-          <div className="sm:hidden border-b">
-            <div className="flex">
-              {/* Left Vote Column */}
-              <div className="flex flex-col items-center py-2 px-2 bg-slate-50">
-                <VoteButtons
-                  postId={post.id}
-                  initialUpvotes={post.upvotes}
-                  initialDownvotes={post.downvotes}
-                  initialUserVote={post.userVote}
-                  size="sm"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 p-2">
-                <div className="inline-block px-2 py-0.5 text-xs font-medium text-white bg-red-600 rounded mb-1">
-                  {post.categories || post.category}
-                </div>
-                <Link href={`/post/${post.id}`}>
-                  <h2 className="text-base font-semibold hover:text-blue-600">
-                    {post.title}
-                  </h2>
-                </Link>
-                <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  <span>{post.author}</span>
-                  <span>•</span>
-                  <span>{post.timeAgo || ""}</span>
-                  {post.views && (
-                    <>
-                      <span>•</span>
-                      <span>{post.views} views</span>
-                    </>
-                  )}
-                  <span>•</span>
-                  <span>
-                    {post.commentCount || post.comments || 0}{" "}
-                    {post.commentCount === 1 ? "Comment" : "Comments"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Number Badge */}
-              <div className="flex items-start justify-center w-8 py-2">
-                <span className="text-2xl font-bold text-gray-200">
-                  {index + 1}
+          {/* Mobile */}
+          <div className="sm:hidden">
+            {/* Image with badge */}
+            <div className="relative w-full h-48">
+              <Image
+                src={post.imageUrl || "/assets/likobuzz_post_placeholder_2.png"}
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
+              <span className="absolute bottom-2 left-2 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded">
+                {post.category || "NEWS"}
+              </span>
+              <span className="absolute top-2 right-2 text-2xl font-bold text-white drop-shadow-lg">
+                {index + 1}
+              </span>
+            </div>
+            {/* Content */}
+            <div className="p-3">
+              <Link href={`/post/${post.id}`}>
+                <h2 className="text-base font-semibold hover:text-blue-600">
+                  {post.title}
+                </h2>
+              </Link>
+              <div className="mt-1 flex flex-wrap items-center text-xs text-gray-500 gap-x-2 gap-y-1">
+                <span>{post.author}</span>
+                <span>·</span>
+                <span>{post.timeAgo || ""}</span>
+                {post.views && (
+                  <>
+                    <span>·</span>
+                    <span>{post.views} views</span>
+                  </>
+                )}
+                <span>·</span>
+                <span>
+                  {post.commentCount ?? post.comments ?? 0}{" "}
+                  {(post.commentCount ?? post.comments ?? 0) === 1
+                    ? "Comment"
+                    : "Comments"}
                 </span>
               </div>
+            </div>
+            {/* Vote bar */}
+            <div className="flex items-center justify-center bg-slate-50 border-t">
+              <VoteButtons
+                postId={post.id}
+                initialUpvotes={post.upvotes}
+                initialDownvotes={post.downvotes}
+                initialUserVote={post.userVote}
+                size="sm"
+                horizontal
+              />
             </div>
           </div>
         </article>

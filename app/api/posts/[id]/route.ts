@@ -17,6 +17,7 @@ export async function GET(
       votes: true,
       comments: true,
       categories: true,
+      images: true,
     },
   });
 
@@ -56,6 +57,6 @@ export async function GET(
     commentCount,
     createdAt: post.createdAt,
     userVote,
-    // add other fields as needed
+    imageUrl: post.images[0]?.url || null,
   });
 }

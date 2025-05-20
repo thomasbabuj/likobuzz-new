@@ -73,7 +73,7 @@ alwaysApply: false
 - [ ] Post Management System
   - [ ] Post deletion
   - [ ] Post publishing/unpublishing
-  - [ ] Image/video upload system
+  - [x] Image/video upload system (supports images)
   - [ ] Post categorization
   - [ ] Post search functionality
 

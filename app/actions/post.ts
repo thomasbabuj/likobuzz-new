@@ -32,6 +32,13 @@ export async function createPost(input: PostCreateInput) {
         connect: validatedData.categories.map((id) => ({ id })),
       },
       slug: slugify(validatedData.title),
+      images: validatedData.images?.length
+        ? {
+            create: validatedData.images.map((img) => ({
+              url: img.url,
+            })),
+          }
+        : undefined,
     },
   });
 
@@ -60,6 +67,13 @@ export async function updatePost(id: string, input: PostCreateInput) {
         set: validatedData.categories.map((id) => ({ id })),
       },
       slug: slugify(validatedData.title),
+      images: {
+        deleteMany: {},
+        create:
+          validatedData.images?.map((img) => ({
+            url: img.url,
+          })) || [],
+      },
     },
   });
 

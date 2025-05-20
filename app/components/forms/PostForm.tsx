@@ -47,8 +47,13 @@ export function PostForm({
 }: PostFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(
-    post?.imageUrl || null
+  const [currentImage, setCurrentImage] = useState<{
+    url: string;
+    id: string;
+  } | null>(
+    post?.images?.[0]
+      ? { url: post.images[0].url, id: post.images[0].id }
+      : null
   );
   const [isUploading, setIsUploading] = useState(false);
 
@@ -151,24 +156,24 @@ export function PostForm({
 
         <FormField
           control={form.control}
-          name="imageUrl"
+          name="images"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Featured Image</FormLabel>
               <FormControl>
                 <div className="space-y-4">
-                  {imageUrl && (
-                    <div className="relative w-40 h-40">
+                  {currentImage && (
+                    <div className="relative w-64 h-64">
                       <img
-                        src={imageUrl}
+                        src={currentImage.url}
                         alt="Featured"
-                        className="object-cover rounded-lg"
+                        className="w-full h-full object-cover rounded-lg"
                       />
                       <button
                         type="button"
                         onClick={() => {
-                          setImageUrl(null);
-                          field.onChange(null);
+                          setCurrentImage(null);
+                          field.onChange([]);
                         }}
                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                       >
@@ -183,8 +188,9 @@ export function PostForm({
                       onClientUploadComplete={(res) => {
                         setIsUploading(false);
                         if (res?.[0]) {
-                          setImageUrl(res[0].url);
-                          field.onChange(res[0].url);
+                          const newImage = { url: res[0].url, id: res[0].name };
+                          setCurrentImage(newImage);
+                          field.onChange([newImage]);
                         }
                       }}
                       onUploadError={(error: Error) => {

@@ -198,16 +198,38 @@ export function PostFeed() {
               </div>
             </div>
             {/* Vote bar */}
-            <div className="flex items-center justify-center bg-slate-50 border-t">
+            {/* <div className="flex items-center justify-center bg-slate-50 border-t"> */}
+            <div className="flex justify-center border-t bg-slate-50">
               <VoteButtons
                 postId={post.id}
                 initialUpvotes={post.upvotes}
                 initialDownvotes={post.downvotes}
                 initialUserVote={post.userVote}
                 size="sm"
-                horizontal
+                orientation="horizontal"
               />
             </div>
+
+            {/* <div className="flex justify-center border-t">
+              <div className="flex flex-col items-center py-2 px-4">
+                <button
+                  className="text-gray-400 hover:text-blue-500 transition-colors"
+                  aria-label="Upvote"
+                >
+                  <ChevronUp className="h-6 w-6" />
+                </button>
+                <span className="font-medium text-lg my-1">
+                  {post.upvotes - (post.downvotes || 0) || 0}
+                </span>
+                <button
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label="Downvote"
+                >
+                  <ChevronDown className="h-6 w-6" />
+                </button>
+                <div className="text-sm text-gray-500 mt-1">VOTE</div>
+              </div>
+            </div> */}
           </div>
         </article>
       ))}

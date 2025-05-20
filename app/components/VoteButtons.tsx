@@ -47,9 +47,13 @@ export function VoteButtons({
 
   if (orientation === "horizontal") {
     // Horizontal layout (e.g., for mobile)
+    console.log("horizontal");
     return (
       <div
-        className={cn("grid grid-cols-3 items-center bg-muted/30", className)}
+        className={cn(
+          "grid grid-cols-3 items-center gap-4 bg-muted/30",
+          className
+        )}
       >
         <div className="flex items-center justify-center">
           <Button

@@ -6,12 +6,13 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const queryParams = await params;
   // Get authenticated user if available
   const { userId } = await auth();
 
   // Fetch the post with related data
   const post = await db.post.findFirst({
-    where: { slug: params.id },
+    where: { slug: queryParams.id },
     include: {
       author: { select: { username: true } },
       votes: true,

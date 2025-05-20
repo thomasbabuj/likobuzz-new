@@ -106,10 +106,11 @@ export default async function PostsPage({
     search?: string;
   };
 }) {
-  const page = Number(searchParams.page) || 1;
-  const sortField = (searchParams.sort as SortField) || "createdAt";
-  const sortOrder = (searchParams.order as SortOrder) || "desc";
-  const search = searchParams.search;
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const sortField = (params.sort as SortField) || "createdAt";
+  const sortOrder = (params.order as SortOrder) || "desc";
+  const search = params.search;
 
   const { posts, totalPages } = await getPosts(
     page,

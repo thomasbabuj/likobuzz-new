@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
     return {
       id: post.id,
       title: post.title,
+      slug: post.slug,
       author: post.author?.username ?? "Unknown",
       upvotes: upVotes,
       downvotes: downVotes,

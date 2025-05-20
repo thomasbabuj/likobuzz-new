@@ -129,7 +129,7 @@ export function PostFeed() {
             </div>
             {/* Content */}
             <div className="flex-1 flex flex-col justify-between p-4">
-              <Link href={`/post/${post.id}`}>
+              <Link href={`/post/${post.slug}`}>
                 <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">
                   {post.title}
                 </h2>

@@ -10,8 +10,8 @@ export async function GET(
   const { userId } = await auth();
 
   // Fetch the post with related data
-  const post = await db.post.findUnique({
-    where: { id: params.id },
+  const post = await db.post.findFirst({
+    where: { slug: params.id },
     include: {
       author: { select: { username: true } },
       votes: true,

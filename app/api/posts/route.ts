@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
       votes: true,
       comments: true,
       categories: true,
+      images: true,
     },
   });
 
@@ -55,14 +56,18 @@ export async function GET(req: NextRequest) {
     return {
       id: post.id,
       title: post.title,
+      slug: post.slug,
       author: post.author?.username ?? "Unknown",
       upvotes: upVotes,
       downvotes: downVotes,
       commentCount,
       categories,
       userVote,
+      imageUrl: post.images[0]?.url || null,
     };
   });
+
+  console.log(JSON.stringify(shapedPosts, null, 2));
 
   let nextCursor: string | null = null;
   if (posts.length > limit) {

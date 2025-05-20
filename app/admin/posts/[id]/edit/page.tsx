@@ -14,7 +14,10 @@ export default async function EditPostPage({
 
   const post = await db.post.findUnique({
     where: { id: params.id },
-    include: { categories: true },
+    include: {
+      categories: true,
+      images: true,
+    },
   });
   if (!post) redirect("/admin/posts");
 

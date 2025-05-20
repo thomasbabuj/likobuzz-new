@@ -10,13 +10,14 @@ export async function GET(
   const { userId } = await auth();
 
   // Fetch the post with related data
-  const post = await db.post.findUnique({
-    where: { id: params.id },
+  const post = await db.post.findFirst({
+    where: { slug: params.id },
     include: {
       author: { select: { username: true } },
       votes: true,
       comments: true,
       categories: true,
+      images: true,
     },
   });
 
@@ -56,6 +57,6 @@ export async function GET(
     commentCount,
     createdAt: post.createdAt,
     userVote,
-    // add other fields as needed
+    imageUrl: post.images[0]?.url || null,
   });
 }

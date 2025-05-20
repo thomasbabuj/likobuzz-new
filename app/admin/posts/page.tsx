@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import Link from "next/link";
 import {
   Pagination,
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/pagination";
 import { TableFilters } from "../components/table-filters";
 import { TablePagination } from "../components/table-pagination";
+import { Badge } from "@/components/ui/badge";
 
 const PAGE_SIZE = 10;
 
@@ -159,7 +160,9 @@ export default async function PostsPage({
               <TableHead>Author</TableHead>
               <TableHead>Comments</TableHead>
               <TableHead>Votes</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -179,7 +182,19 @@ export default async function PostsPage({
                 <TableCell>{post._count.comments}</TableCell>
                 <TableCell>{post._count.votes}</TableCell>
                 <TableCell>
+                  <Badge variant={post.published ? "default" : "secondary"}>
+                    {post.published ? "Published" : "Draft"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
                   {new Date(post.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link href={`/admin/posts/${post.id}/edit`}>
+                      <Pencil className="h-4 w-4" />
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

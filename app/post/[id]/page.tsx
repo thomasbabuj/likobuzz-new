@@ -118,10 +118,19 @@ export default function PostPage() {
                   </div>
                 </div>
                 {/* Content */}
-                <div
-                  className="mb-3 space-y-4 prose prose-slate max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
+                <div className="mb-4 flex flex-col gap-4">
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="w-full h-auto rounded-lg object-cover mx-auto"
+                  />
+                  <div className="rounded-lg p-4 flex-1 flex items-center">
+                    <div
+                      className="prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+                  </div>
+                </div>
 
                 {/* Stats row */}
                 <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">

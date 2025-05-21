@@ -49,6 +49,8 @@
     "svix": "^1.64.1",
     "tailwind-merge": "^3.2.0",
     "uploadthing": "^7.7.2",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {

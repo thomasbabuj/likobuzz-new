@@ -12,7 +12,6 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { mockComments } from "@/app/mocks/comments";
 import {
   COMMENT_CONSTANTS,
   ROLE_STYLES,
@@ -28,6 +27,7 @@ import {
 import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import Loading from "@/app/loading";
+import Logger from "@/lib/logger/client";
 
 function CommentCard({
   comment,
@@ -73,7 +73,7 @@ function CommentCard({
       comment.totalReplies > 0 &&
       (!comment.replies || comment.replies.length === 0)
     ) {
-      console.log(
+      Logger.info(
         "Comment with replies but none loaded:",
         comment.id,
         comment.content.substring(0, 20),

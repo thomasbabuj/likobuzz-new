@@ -1,11 +1,12 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import Logger from "@/lib/logger";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } }).onUploadComplete(
     async ({ metadata, file }) => {
-      console.log("Upload complete for file:", file.url);
+      Logger.info("Upload complete for file:", file.ufsUrl);
       return { uploadedBy: "user" };
     }
   ),

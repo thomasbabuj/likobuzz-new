@@ -80,8 +80,6 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  console.log(JSON.stringify(shapedPosts, null, 2));
-
   let nextCursor: string | null = null;
   if (posts.length > limit) {
     nextCursor = posts[limit].id;

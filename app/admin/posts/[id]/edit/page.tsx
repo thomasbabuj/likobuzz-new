@@ -23,13 +23,6 @@ export default async function EditPostPage({
   });
   if (!post) redirect("/admin/posts");
 
-  // const shapedPost = {
-  //   ...post,
-  //   imageUrl: post.images.find((img) => img.type === "featured")?.url || null,
-  // };
-
-  console.log(JSON.stringify(post, null, 2));
-
   // Fetch all categories for the select
   const allCategories = await db.category.findMany();
 

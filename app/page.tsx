@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { PostFeed } from "./components/PostFeed";
 import { RightSidebar } from "./components/RightSidebar";
 import { Providers } from "./providers/Providers";
+import Logger from "@/lib/logger/server";
 
 export default function Home() {
   return (

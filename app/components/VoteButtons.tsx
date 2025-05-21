@@ -47,7 +47,6 @@ export function VoteButtons({
 
   if (orientation === "horizontal") {
     // Horizontal layout (e.g., for mobile)
-    console.log("horizontal");
     return (
       <div
         className={cn(

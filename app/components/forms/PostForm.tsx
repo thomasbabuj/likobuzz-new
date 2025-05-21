@@ -52,8 +52,7 @@ export function PostForm({
     id: string;
   } | null>(() => {
     const featuredImage = post?.images?.find(
-      (img: { type: string; url: string; id: string }) =>
-        img.type === "featured"
+      (img: { featured: boolean; url: string; id: string }) => img.featured
     );
     return featuredImage
       ? { url: featuredImage.url, id: featuredImage.id }
@@ -192,7 +191,12 @@ export function PostForm({
                       onClientUploadComplete={(res) => {
                         setIsUploading(false);
                         if (res?.[0]) {
-                          const newImage = { url: res[0].url, id: res[0].name };
+                          const newImage = {
+                            url: res[0].url,
+                            id: res[0].name,
+                            featured: true,
+                            type: "featured",
+                          };
                           setCurrentImage(newImage);
                           field.onChange([newImage]);
                         }

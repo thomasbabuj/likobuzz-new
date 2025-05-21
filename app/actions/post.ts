@@ -36,6 +36,8 @@ export async function createPost(input: PostCreateInput) {
         ? {
             create: validatedData.images.map((img) => ({
               url: img.url,
+              featured: img.featured ?? false,
+              type: img.type ?? "content",
             })),
           }
         : undefined,
@@ -72,6 +74,8 @@ export async function updatePost(id: string, input: PostCreateInput) {
         create:
           validatedData.images?.map((img) => ({
             url: img.url,
+            featured: img.featured ?? false,
+            type: img.type ?? "content",
           })) || [],
       },
     },

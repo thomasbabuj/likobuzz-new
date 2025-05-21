@@ -3,6 +3,8 @@ import * as z from "zod";
 const imageSchema = z.object({
   url: z.string(),
   id: z.string(),
+  featured: z.boolean().default(false),
+  type: z.string().default("content"),
 });
 
 export const postCreateSchema = z.object({

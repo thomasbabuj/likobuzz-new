@@ -94,10 +94,13 @@ model Image {
   url       String
   type      String   @default("content") // "featured" or "content"
   order     Int      @default(0)
+  featured  Boolean  @default(false)
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([postId, featured])
 }
 
 model Video {

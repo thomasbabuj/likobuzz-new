@@ -58,6 +58,6 @@ export async function GET(
     commentCount,
     createdAt: post.createdAt,
     userVote,
-    imageUrl: post.images[0]?.url || null,
+    imageUrl: post.images.find((img) => img.type === "featured")?.url || null,
   });
 }

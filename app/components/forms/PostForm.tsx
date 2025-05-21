@@ -50,11 +50,15 @@ export function PostForm({
   const [currentImage, setCurrentImage] = useState<{
     url: string;
     id: string;
-  } | null>(
-    post?.images?.[0]
-      ? { url: post.images[0].url, id: post.images[0].id }
-      : null
-  );
+  } | null>(() => {
+    const featuredImage = post?.images?.find(
+      (img: { type: string; url: string; id: string }) =>
+        img.type === "featured"
+    );
+    return featuredImage
+      ? { url: featuredImage.url, id: featuredImage.id }
+      : null;
+  });
   const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<PostCreateInput>({

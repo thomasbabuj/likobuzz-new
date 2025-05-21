@@ -12,14 +12,23 @@ export default async function EditPostPage({
   const { sessionClaims, userId } = await auth();
   if (sessionClaims?.role !== "admin") redirect("/");
 
+  const queryParams = await params;
+
   const post = await db.post.findUnique({
-    where: { id: params.id },
+    where: { id: queryParams.id },
     include: {
       categories: true,
       images: true,
     },
   });
   if (!post) redirect("/admin/posts");
+
+  // const shapedPost = {
+  //   ...post,
+  //   imageUrl: post.images.find((img) => img.type === "featured")?.url || null,
+  // };
+
+  console.log(JSON.stringify(post, null, 2));
 
   // Fetch all categories for the select
   const allCategories = await db.category.findMany();

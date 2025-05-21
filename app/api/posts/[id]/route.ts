@@ -14,11 +14,21 @@ export async function GET(
   const post = await db.post.findFirst({
     where: { slug: queryParams.id },
     include: {
-      author: { select: { username: true } },
+      author: {
+        select: {
+          username: true,
+          profileImageUrl: true,
+        },
+      },
+      categories: true,
       votes: true,
       comments: true,
-      categories: true,
-      images: true,
+      images: {
+        where: {
+          featured: true,
+        },
+        take: 1,
+      },
     },
   });
 
@@ -58,6 +68,6 @@ export async function GET(
     commentCount,
     createdAt: post.createdAt,
     userVote,
-    imageUrl: post.images.find((img) => img.type === "featured")?.url || null,
+    imageUrl: post.images[0]?.url || null,
   });
 }

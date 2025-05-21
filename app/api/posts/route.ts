@@ -29,12 +29,25 @@ export async function GET(req: NextRequest) {
     take: limit + 1,
     ...(cursor && { skip: 1, cursor: { id: cursor } }),
     orderBy: { createdAt: "desc" },
+    where: {
+      published: true,
+    },
     include: {
-      author: { select: { username: true } }, // or 'name' if that's your field
+      author: {
+        select: {
+          username: true,
+          profileImageUrl: true,
+        },
+      },
+      categories: true,
       votes: true,
       comments: true,
-      categories: true,
-      images: true,
+      images: {
+        where: {
+          featured: true,
+        },
+        take: 1,
+      },
     },
   });
 
@@ -63,7 +76,7 @@ export async function GET(req: NextRequest) {
       commentCount,
       categories,
       userVote,
-      imageUrl: post.images.find((img) => img.type === "featured")?.url || null,
+      imageUrl: post.images[0]?.url || null,
     };
   });
 

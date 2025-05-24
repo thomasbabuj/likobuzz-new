@@ -136,7 +136,7 @@ export function RightSidebar() {
       </div>
 
       {/* Trending Posts Section */}
-      <div className="bg-card border rounded-lg p-4">
+      {/* <div className="bg-card border rounded-lg p-4">
         <Tabs defaultValue="best" className="w-full">
           <TabsList className="w-full bg-muted/50">
             <TabsTrigger
@@ -202,7 +202,7 @@ export function RightSidebar() {
             </TabsContent>
           ))}
         </Tabs>
-      </div>
+      </div> */}
     </div>
   );
 }

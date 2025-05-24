@@ -12,15 +12,15 @@ export default function Navbar() {
       <div className="max-w-[1200px] mx-auto">
         <div className="flex h-14 items-center px-4">
           <div className="flex items-center gap-2 sm:gap-6">
-            <div className="sm:hidden">
+            {/* <div className="sm:hidden">
               <MainNav />
-            </div>
+            </div> */}
             <Link href="/" className="font-bold text-xl">
               Likobuzz
             </Link>
-            <div className="hidden sm:block">
+            {/* <div className="hidden sm:block">
               <MainNav />
-            </div>
+            </div> */}
           </div>
           <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
             {isSignedIn ? (

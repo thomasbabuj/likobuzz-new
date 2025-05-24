@@ -1,15 +1,11 @@
-import { Button } from "./ui/button";
-import { ChevronDown } from "lucide-react";
 import { PostFeed } from "./components/PostFeed";
 import { RightSidebar } from "./components/RightSidebar";
-import { Providers } from "./providers/Providers";
-import Logger from "@/lib/logger/server";
 
 export default function Home() {
   return (
     <div className="max-w-[1200px] mx-auto px-4">
       {/* Mobile Navigation */}
-      <div className="flex md:hidden flex-col space-y-4 mt-4">
+      {/* <div className="flex md:hidden flex-col space-y-4 mt-4">
         <div className="flex space-x-2">
           <Button variant="destructive" className="flex-1">
             NEW
@@ -40,12 +36,12 @@ export default function Home() {
             CREATE POST
           </Button>
         </div>
-      </div>
+      </div> */}
 
       {/* Desktop Layout */}
       <div className="flex flex-col">
         {/* Desktop Filters */}
-        <div className="hidden md:flex items-center justify-between bg-background sticky top-[57px] z-40 py-4 border-b">
+        {/* <div className="hidden md:flex items-center justify-between bg-background sticky top-[57px] z-40 py-4 border-b">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">AUTHOR:</span>
@@ -71,7 +67,7 @@ export default function Home() {
             <Button variant="destructive">SUBMIT TIP</Button>
             <Button variant="destructive">CREATE POST</Button>
           </div>
-        </div>
+        </div> */}
 
         {/* Main Content */}
         <div className="flex gap-6 mt-6">

@@ -72,7 +72,7 @@ alwaysApply: false
 
 - [ ] Post Management System
   - [ ] Post deletion
-  - [ ] Post publishing/unpublishing
+  - [x] Post publishing/unpublishing
   - [x] Image/video upload system (supports images)
   - [ ] Post categorization
   - [ ] Post search functionality
@@ -121,7 +121,7 @@ alwaysApply: false
 
 - [ ] Performance & Security
   - [ ] Error handling
-  - [ ] Logging system
+  - [x] Logging system
   - [ ] Performance optimization
   - [ ] Security measures
   - [ ] SEO implementation

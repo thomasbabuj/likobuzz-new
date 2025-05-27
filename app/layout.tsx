@@ -1,11 +1,15 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import { Providers } from "./providers/Providers";
 import { AdminLayoutGuard } from "./components/AdminLayoutGuard";
 
-const inter = Inter({ subsets: ["latin"] });
+const openSans = Open_Sans({
+  weight: ["300", "400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata = {
   title: "Likobuzz",
@@ -21,7 +25,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>
+        <body className={openSans.className}>
           <AdminLayoutGuard>
             <Navbar />
           </AdminLayoutGuard>

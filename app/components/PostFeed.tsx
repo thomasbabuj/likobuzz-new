@@ -165,7 +165,7 @@ export function PostFeed() {
             <span
               className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold text-[var(--card-foreground)] shadow ${getCategoryBadgeColor(post.category)}`}
             >
-              {post.category || "NEWS"}
+              {post.categories || "NEWS"}
             </span>
             <span className="absolute bottom-3 right-3 z-10 px-3 py-1 rounded-full bg-black/60 text-white text-lg font-extrabold drop-shadow-lg">
               #{index + 1}

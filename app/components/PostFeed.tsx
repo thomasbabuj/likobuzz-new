@@ -167,7 +167,7 @@ export function PostFeed() {
             >
               {post.category || "NEWS"}
             </span>
-            <span className="absolute bottom-3 right-3 text-2xl font-bold text-white drop-shadow-lg opacity-80">
+            <span className="absolute bottom-3 right-3 z-10 px-3 py-1 rounded-full bg-black/60 text-white text-lg font-extrabold drop-shadow-lg">
               #{index + 1}
             </span>
           </div>

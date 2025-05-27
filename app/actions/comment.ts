@@ -42,6 +42,7 @@ export async function getPostComments(
   sortBy: "popular" | "newest" | "oldest" = "popular"
 ) {
   try {
+    console.log("Getting comments for post:", postId);
     // Get the current user if any
     const { userId } = await auth();
     let dbUser = null;
@@ -50,6 +51,17 @@ export async function getPostComments(
       dbUser = await db.user.findUnique({
         where: { clerkId: userId },
       });
+    }
+
+    // First, get the post ID from the slug
+    const post = await db.post.findFirst({
+      where: { slug: postId },
+      select: { id: true },
+    });
+
+    if (!post) {
+      console.error("Post not found for slug:", postId);
+      return [];
     }
 
     // Determine the sort order based on the sortBy parameter
@@ -67,7 +79,7 @@ export async function getPostComments(
     // Get top-level comments (no parentId)
     const comments = await db.comment.findMany({
       where: {
-        postId,
+        postId: post.id, // Use the actual post ID
         parentId: null,
       },
       orderBy,
@@ -94,6 +106,8 @@ export async function getPostComments(
         },
       },
     });
+
+    console.log("Raw comments from DB:", comments);
 
     // Transform the data to match the expected format in the UI
     const transformedComments: CommentData[] = comments.map((comment) => {
@@ -142,6 +156,8 @@ export async function getPostComments(
         }),
       };
     });
+
+    console.log("Transformed comments:", transformedComments);
 
     // Apply sorting
     if (sortBy === "popular") {
@@ -333,12 +349,22 @@ export async function createComment(input: CommentInput) {
       return { error: "User not found", success: false };
     }
 
+    // Get the post ID from the slug
+    const post = await db.post.findFirst({
+      where: { slug: input.postId },
+      select: { id: true },
+    });
+
+    if (!post) {
+      return { error: "Post not found", success: false };
+    }
+
     // Create the comment
     const comment = await db.comment.create({
       data: {
         content: input.content,
         authorId: user.id,
-        postId: input.postId,
+        postId: post.id, // Use the actual post ID
         ...(input.parentId && { parentId: input.parentId }),
       },
     });

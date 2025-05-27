@@ -55,6 +55,8 @@ export default function PostPage() {
   const postId = params?.id as string;
   const { data: post, isLoading, error } = usePost(postId);
 
+  console.log(post);
+
   if (isLoading) return <Loading />;
   if (error || !post) return <div>Post not found</div>;
 

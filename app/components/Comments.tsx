@@ -324,7 +324,9 @@ export function Comments({
 
       setIsLoading(true);
       try {
+        console.log("Fetching comments for post:", postId);
         const fetchedComments = await getPostComments(postId, sortBy);
+        console.log("Fetched comments:", fetchedComments);
 
         // Display only the first batch of comments
         setComments(fetchedComments.slice(0, COMMENTS_PER_PAGE));

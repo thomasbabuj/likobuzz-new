@@ -38,6 +38,49 @@ const MOCK_POSTS = [
   },
 ];
 
+function getCategoryBadgeColor(category?: string) {
+  switch ((category || "").toLowerCase()) {
+    case "news":
+      return "bg-[var(--category-news)]";
+    case "gossip":
+      return "bg-[var(--category-gossip)]";
+    case "lifestyle":
+      return "bg-[var(--category-lifestyle)]";
+    case "entertainment":
+      return "bg-[var(--category-entertainment)]";
+    default:
+      return "bg-[var(--category-default)]";
+  }
+}
+
+function Avatar({
+  user,
+  size = "xs",
+}: {
+  user: string;
+  size?: "xs" | "sm" | "md";
+}) {
+  // Simple fallback avatar with initials
+  const initials = user
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const sizeMap = {
+    xs: "w-7 h-7 text-xs",
+    sm: "w-9 h-9 text-sm",
+    md: "w-12 h-12 text-base",
+  };
+  return (
+    <div
+      className={`rounded-full bg-[var(--muted)] text-[var(--muted-foreground)] flex items-center justify-center font-bold ${sizeMap[size]}`}
+    >
+      {initials}
+    </div>
+  );
+}
+
 export function PostFeed() {
   const {
     data,
@@ -94,101 +137,60 @@ export function PostFeed() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {posts.map((post, index) => (
         <article
           key={post.id}
-          className="bg-[var(--card)] rounded-lg shadow overflow-hidden border border-[var(--border)]"
+          className="group flex flex-col sm:flex-row bg-[var(--card)] rounded-2xl shadow-lg border border-[var(--border)] transition-all hover:shadow-2xl hover:-translate-y-1 overflow-hidden"
         >
-          {/* Desktop */}
-          <div className="hidden sm:flex">
-            {/* Vote bar */}
-            <div className="flex flex-col items-center justify-center bg-[var(--muted)] px-3 py-4 border-r border-[var(--border)]">
-              <VoteButtons
-                postId={post.id}
-                initialUpvotes={post.upvotes}
-                initialDownvotes={post.downvotes}
-                initialUserVote={post.userVote}
-                size="sm"
-              />
-            </div>
-            {/* Image with badge */}
-            <div className="relative w-40 h-40 flex-shrink-0 border-r border-[var(--border)]">
-              <Image
-                src={post.imageUrl || "/assets/likobuzz_post_placeholder_2.png"}
-                alt={post.title}
-                fill
-                className="object-cover"
-              />
-              <span className="absolute bottom-2 left-2 bg-[var(--destructive)] text-[var(--card-foreground)] text-xs font-bold px-2 py-1 rounded">
-                {post.category || "NEWS"}
-              </span>
-              <span className="absolute top-2 right-2 text-3xl font-bold text-white drop-shadow-lg">
-                {index + 1}
-              </span>
-            </div>
-            {/* Content */}
-            <div className="flex-1 flex flex-col justify-between p-4">
-              <Link href={`/post/${post.slug}`}>
-                <h2 className="text-xl font-semibold hover:text-[var(--primary)] transition-colors">
-                  {post.title}
-                </h2>
-              </Link>
-              <div className="mt-2 flex flex-wrap items-center text-sm text-[var(--muted-foreground)] gap-x-2 gap-y-1">
-                <span>Posted by {post.author}</span>
-                <span>·</span>
-                <span>{post.timeAgo || ""}</span>
-                {post.views && (
-                  <>
-                    <span>·</span>
-                    <span>{post.views} views</span>
-                  </>
-                )}
-                <span>·</span>
-                <span>
-                  {post.commentCount ?? post.comments ?? 0}{" "}
-                  {(post.commentCount ?? post.comments ?? 0) === 1
-                    ? "Comment"
-                    : "Comments"}
-                </span>
-              </div>
-            </div>
+          {/* Desktop vote bar */}
+          <div className="hidden sm:flex flex-col items-center justify-center bg-[var(--muted)] px-3 py-4 border-r border-[var(--border)]">
+            <VoteButtons
+              postId={post.id}
+              initialUpvotes={post.upvotes}
+              initialDownvotes={post.downvotes}
+              initialUserVote={post.userVote}
+              size="sm"
+            />
           </div>
-          {/* Mobile */}
-          <div className="sm:hidden">
-            {/* Image with badge */}
-            <div className="relative w-full h-48">
-              <Image
-                src={post.imageUrl || "/assets/likobuzz_post_placeholder_2.png"}
-                alt={post.title}
-                fill
-                className="object-cover"
-              />
-              <span className="absolute bottom-2 left-2 bg-[var(--destructive)] text-[var(--card-foreground)] text-xs font-bold px-2 py-1 rounded">
-                {post.category || "NEWS"}
-              </span>
-              <span className="absolute top-2 right-2 text-2xl font-bold text-white drop-shadow-lg">
-                {index + 1}
-              </span>
-            </div>
-            {/* Content */}
-            <div className="p-3">
-              <Link href={`/post/${post.id}`}>
-                <h2 className="text-base font-semibold hover:text-[var(--primary)]">
+          {/* Image + badge */}
+          <div className="relative w-full sm:w-44 h-48 sm:h-auto flex-shrink-0">
+            <Image
+              src={post.imageUrl || "/assets/likobuzz_post_placeholder_2.png"}
+              alt={post.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, 176px"
+            />
+            <span
+              className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold text-[var(--card-foreground)] shadow ${getCategoryBadgeColor(post.category)}`}
+            >
+              {post.category || "NEWS"}
+            </span>
+            <span className="absolute bottom-3 right-3 text-2xl font-bold text-white drop-shadow-lg opacity-80">
+              #{index + 1}
+            </span>
+          </div>
+          {/* Content */}
+          <div className="flex-1 flex flex-col justify-between p-5 gap-2">
+            <div>
+              <Link href={`/post/${post.slug}`}>
+                <h2 className="text-xl font-semibold group-hover:text-[var(--primary)] transition-colors line-clamp-2">
                   {post.title}
                 </h2>
               </Link>
-              <div className="mt-1 flex flex-wrap items-center text-xs text-[var(--muted-foreground)] gap-x-2 gap-y-1">
-                <span>{post.author}</span>
-                <span>·</span>
+              <div className="mt-3 flex items-center gap-3 text-sm text-[var(--muted-foreground)]">
+                <Avatar user={post.author} size="xs" />
+                <span className="font-medium">{post.author}</span>
+                <span className="opacity-60">·</span>
                 <span>{post.timeAgo || ""}</span>
                 {post.views && (
                   <>
-                    <span>·</span>
+                    <span className="opacity-60">·</span>
                     <span>{post.views} views</span>
                   </>
                 )}
-                <span>·</span>
+                <span className="opacity-60">·</span>
                 <span>
                   {post.commentCount ?? post.comments ?? 0}{" "}
                   {(post.commentCount ?? post.comments ?? 0) === 1
@@ -197,8 +199,8 @@ export function PostFeed() {
                 </span>
               </div>
             </div>
-            {/* Vote bar */}
-            <div className="flex justify-center border-t border-[var(--border)] bg-[var(--muted)]">
+            {/* Mobile vote bar */}
+            <div className="flex sm:hidden justify-center items-center border-t border-[var(--border)] bg-[var(--muted)] rounded-b-2xl py-2">
               <VoteButtons
                 postId={post.id}
                 initialUpvotes={post.upvotes}

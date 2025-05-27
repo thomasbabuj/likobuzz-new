@@ -98,12 +98,12 @@ export function PostFeed() {
       {posts.map((post, index) => (
         <article
           key={post.id}
-          className="bg-white rounded-lg shadow overflow-hidden border"
+          className="bg-[var(--card)] rounded-lg shadow overflow-hidden border border-[var(--border)]"
         >
           {/* Desktop */}
           <div className="hidden sm:flex">
             {/* Vote bar */}
-            <div className="flex flex-col items-center justify-center bg-slate-50 px-3 py-4 border-r">
+            <div className="flex flex-col items-center justify-center bg-[var(--muted)] px-3 py-4 border-r border-[var(--border)]">
               <VoteButtons
                 postId={post.id}
                 initialUpvotes={post.upvotes}
@@ -113,14 +113,14 @@ export function PostFeed() {
               />
             </div>
             {/* Image with badge */}
-            <div className="relative w-40 h-40 flex-shrink-0 border-r">
+            <div className="relative w-40 h-40 flex-shrink-0 border-r border-[var(--border)]">
               <Image
                 src={post.imageUrl || "/assets/likobuzz_post_placeholder_2.png"}
                 alt={post.title}
                 fill
                 className="object-cover"
               />
-              <span className="absolute bottom-2 left-2 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded">
+              <span className="absolute bottom-2 left-2 bg-[var(--destructive)] text-[var(--card-foreground)] text-xs font-bold px-2 py-1 rounded">
                 {post.category || "NEWS"}
               </span>
               <span className="absolute top-2 right-2 text-3xl font-bold text-white drop-shadow-lg">
@@ -130,11 +130,11 @@ export function PostFeed() {
             {/* Content */}
             <div className="flex-1 flex flex-col justify-between p-4">
               <Link href={`/post/${post.slug}`}>
-                <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">
+                <h2 className="text-xl font-semibold hover:text-[var(--primary)] transition-colors">
                   {post.title}
                 </h2>
               </Link>
-              <div className="mt-2 flex flex-wrap items-center text-sm text-gray-500 gap-x-2 gap-y-1">
+              <div className="mt-2 flex flex-wrap items-center text-sm text-[var(--muted-foreground)] gap-x-2 gap-y-1">
                 <span>Posted by {post.author}</span>
                 <span>·</span>
                 <span>{post.timeAgo || ""}</span>
@@ -164,7 +164,7 @@ export function PostFeed() {
                 fill
                 className="object-cover"
               />
-              <span className="absolute bottom-2 left-2 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded">
+              <span className="absolute bottom-2 left-2 bg-[var(--destructive)] text-[var(--card-foreground)] text-xs font-bold px-2 py-1 rounded">
                 {post.category || "NEWS"}
               </span>
               <span className="absolute top-2 right-2 text-2xl font-bold text-white drop-shadow-lg">
@@ -174,11 +174,11 @@ export function PostFeed() {
             {/* Content */}
             <div className="p-3">
               <Link href={`/post/${post.id}`}>
-                <h2 className="text-base font-semibold hover:text-blue-600">
+                <h2 className="text-base font-semibold hover:text-[var(--primary)]">
                   {post.title}
                 </h2>
               </Link>
-              <div className="mt-1 flex flex-wrap items-center text-xs text-gray-500 gap-x-2 gap-y-1">
+              <div className="mt-1 flex flex-wrap items-center text-xs text-[var(--muted-foreground)] gap-x-2 gap-y-1">
                 <span>{post.author}</span>
                 <span>·</span>
                 <span>{post.timeAgo || ""}</span>
@@ -198,8 +198,7 @@ export function PostFeed() {
               </div>
             </div>
             {/* Vote bar */}
-            {/* <div className="flex items-center justify-center bg-slate-50 border-t"> */}
-            <div className="flex justify-center border-t bg-slate-50">
+            <div className="flex justify-center border-t border-[var(--border)] bg-[var(--muted)]">
               <VoteButtons
                 postId={post.id}
                 initialUpvotes={post.upvotes}
@@ -209,27 +208,6 @@ export function PostFeed() {
                 orientation="horizontal"
               />
             </div>
-
-            {/* <div className="flex justify-center border-t">
-              <div className="flex flex-col items-center py-2 px-4">
-                <button
-                  className="text-gray-400 hover:text-blue-500 transition-colors"
-                  aria-label="Upvote"
-                >
-                  <ChevronUp className="h-6 w-6" />
-                </button>
-                <span className="font-medium text-lg my-1">
-                  {post.upvotes - (post.downvotes || 0) || 0}
-                </span>
-                <button
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                  aria-label="Downvote"
-                >
-                  <ChevronDown className="h-6 w-6" />
-                </button>
-                <div className="text-sm text-gray-500 mt-1">VOTE</div>
-              </div>
-            </div> */}
           </div>
         </article>
       ))}

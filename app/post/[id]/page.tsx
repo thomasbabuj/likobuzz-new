@@ -63,7 +63,7 @@ export default function PostPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Main content area */}
         <div className="flex-1 min-w-0">
-          <article className="bg-white rounded-lg border">
+          <article className="bg-[var(--card)] rounded-lg border border-[var(--border)]">
             {/* MOBILE: Vote buttons above content */}
             <div className="md:hidden mb-2">
               <VoteButtons
@@ -79,7 +79,7 @@ export default function PostPage() {
 
             <div className="flex flex-col md:flex-row">
               {/* DESKTOP: Left vote column */}
-              <div className="hidden md:flex flex-col items-center py-4 px-4 bg-slate-50 rounded-l-lg border-r">
+              <div className="hidden md:flex flex-col items-center py-4 px-4 bg-[var(--muted)] rounded-l-lg border-r border-[var(--border)]">
                 <VoteButtons
                   postId={post.id}
                   initialUpvotes={post.upvotes}
@@ -95,17 +95,17 @@ export default function PostPage() {
                 <div className="flex flex-col gap-1 mb-2">
                   <Badge
                     variant="secondary"
-                    className="bg-red-600 text-white hover:bg-red-700 w-fit"
+                    className="bg-[var(--destructive)] text-[var(--card-foreground)] hover:bg-[var(--destructive)] w-fit"
                   >
                     {post.categories}
                   </Badge>
                   <h1 className="text-xl md:text-2xl font-bold leading-tight mb-1 md:mb-4">
                     {post.title}
                   </h1>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--muted-foreground)]">
                     <Badge
                       variant="secondary"
-                      className="bg-red-600 text-white hover:bg-red-700"
+                      className="bg-[var(--destructive)] text-[var(--card-foreground)] hover:bg-[var(--destructive)]"
                     >
                       {MOCK_POST.authorBadge}
                     </Badge>
@@ -126,14 +126,14 @@ export default function PostPage() {
                   />
                   <div className="rounded-lg p-4 flex-1 flex items-center">
                     <div
-                      className="prose prose-invert max-w-none"
+                      className="prose max-w-none text-[var(--foreground)]"
                       dangerouslySetInnerHTML={{ __html: post.content }}
                     />
                   </div>
                 </div>
 
                 {/* Stats row */}
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                <div className="flex items-center gap-3 text-xs text-[var(--muted-foreground)] mb-3">
                   <MessageSquare className="h-4 w-4" />
                   <span>{post.commentCount} Comments</span>
                   <span>•</span>
@@ -147,7 +147,7 @@ export default function PostPage() {
                     <Badge
                       key={tag}
                       variant="secondary"
-                      className="bg-slate-100 text-slate-800 hover:bg-slate-200"
+                      className="bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--muted)]"
                     >
                       {tag}
                     </Badge>
@@ -176,11 +176,11 @@ export default function PostPage() {
             </div>
 
             {/* Navigation */}
-            <div className="border-t">
+            <div className="border-t border-[var(--border)]">
               <div className="flex justify-between p-4">
                 <a
                   href="#"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 >
                   <span>← PREV</span>
                   <span className="text-sm truncate">
@@ -189,7 +189,7 @@ export default function PostPage() {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 >
                   <span className="text-sm truncate">Next article title</span>
                   <span>NEXT →</span>
@@ -198,7 +198,7 @@ export default function PostPage() {
             </div>
 
             {/* Comments */}
-            <div className="border-t">
+            <div className="border-t border-[var(--border)]">
               <div className="p-6">
                 <Comments postId={postId} />
               </div>

@@ -82,8 +82,10 @@ export function RightSidebar() {
   return (
     <div className="hidden lg:block w-[300px] space-y-6">
       {/* About Section */}
-      <div className="rounded-lg border p-4">
-        <h3 className="font-semibold mb-2">About Likobuzz</h3>
+      <div className="rounded-lg border border-border p-4 bg-card">
+        <h3 className="font-semibold mb-2 text-card-foreground">
+          About Likobuzz
+        </h3>
         <p className="text-sm text-muted-foreground">
           A fun, public discussion, Q&A, and gossip platform for the Filipino
           community worldwide.
@@ -91,8 +93,10 @@ export function RightSidebar() {
       </div>
 
       {/* Rules Section */}
-      <div className="rounded-lg border p-4">
-        <h3 className="font-semibold mb-2">Community Rules</h3>
+      <div className="rounded-lg border border-border p-4 bg-card">
+        <h3 className="font-semibold mb-2 text-card-foreground">
+          Community Rules
+        </h3>
         <ul className="text-sm text-muted-foreground space-y-2">
           <li>1. Be respectful to others</li>
           <li>2. No hate speech or bullying</li>
@@ -103,8 +107,10 @@ export function RightSidebar() {
       </div>
 
       {/* Stats Section */}
-      <div className="rounded-lg border p-4">
-        <h3 className="font-semibold mb-2">Community Stats</h3>
+      <div className="rounded-lg border border-border p-4 bg-card">
+        <h3 className="font-semibold mb-2 text-card-foreground">
+          Community Stats
+        </h3>
         <div className="text-sm text-muted-foreground space-y-1">
           <p>👥 1.2k Members</p>
           <p>📝 150 Posts today</p>
@@ -113,8 +119,10 @@ export function RightSidebar() {
       </div>
 
       {/* Inbox Section */}
-      <div className="bg-card border rounded-lg p-4">
-        <h2 className="text-lg font-semibold mb-4">LIKOBUZZ IN YOUR INBOX</h2>
+      <div className="bg-card border border-border rounded-lg p-4">
+        <h2 className="text-lg font-semibold mb-4 text-card-foreground">
+          LIKOBUZZ IN YOUR INBOX
+        </h2>
         <p className="text-sm text-muted-foreground mb-4">
           THE TOP 10 STORIES DELIVERED DAILY
         </p>
@@ -124,11 +132,11 @@ export function RightSidebar() {
             placeholder="YOUR EMAIL ADDRESS"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full"
+            className="w-full bg-input text-input-foreground border border-input rounded-md px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition"
           />
           <Button
             type="submit"
-            className="w-full bg-[#c91c1c] hover:bg-[#a51717]"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-md"
           >
             SUBSCRIBE
           </Button>
